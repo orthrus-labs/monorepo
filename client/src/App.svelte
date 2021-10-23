@@ -1,30 +1,37 @@
 <script>
-	export let name;
+// @ts-nocheck
+
+import {
+    Router
+} from "svelte-routing";
+import {
+    Web3
+} from "svelte-web3";
+async function connectWallet() {
+    if (window.ethereum) {
+        if (Web3) {
+            window.web3 = new Web3(ethereum);
+            await window.ethereum.enable()
+            metamaskConnected = window.ethereum.isConnected()
+        } else {
+            console.log("Web3 is not defined")
+        }
+    }
+}
+
+function onClickConnectWallet() {
+    promise = connectWallet();
+}
+$: promise = connectWallet();
+$: metamaskConnected = window.ethereum ? window.ethereum.isConnected() : false;
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
-
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-</style>
+<Router>
+    {#if window.ethereum }
+    <p>Brownser wallet already connected to metamask</p>
+    {/if}
+    {#if window.ethereum && !metamaskConnected }
+    <p>Please connect to metamask</p>
+    <button on:click={onClickConnectWallet}> Connect wallet</button>
+    {/if}
+</Router>
