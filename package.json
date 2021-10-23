@@ -1,0 +1,33 @@
+{
+
+  "name": "monorepo",
+  "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.",
+  "version": "1.0.0",
+  "main": "hardhat.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-etherscan": "^2.1.7",
+    "hardhat": "^2.6.7"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-nifty-lair/monorepo.git"
+  },
+  "keywords": [
+    "hackathon"
+  ],
+  "author": "Riccardo Persiani <r.persiani92@gmail.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/the-nifty-lair/monorepo/issues"
+  },
+  "homepage": "https://github.com/the-nifty-lair/monorepo#readme"
+}
