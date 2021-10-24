@@ -1,14 +1,12 @@
 const hre = require("hardhat");
 
 async function main() {
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
-  await greeter.deployed();
-  console.log("Greeter deployed to:", greeter.address);
+  const Marketplace = await hre.ethers.getContractFactory("Marketplace");
+  const marketplace = await Marketplace.deploy(10);
+  await marketplace.deployed();
+  console.log("Marketplace deployed to:", marketplace.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main()
   .then(() => process.exit(0))
   .catch((error) => {
