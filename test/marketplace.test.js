@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-
+const prov = ethers.getDefaultProvider();
 describe("Marketplace contract", () => {
   let owner
   let addr1
@@ -50,7 +50,33 @@ describe("Marketplace contract", () => {
       });
       expect(res[0].event).to.equal("NFTListed")
     })
+
   })
 
+  describe("Buy NFT", function(){
+    it("Should transfer the nft and emit NFTBought event",async () => {
+      await sampleERC721.mintToken(owner.address, 2, {from: owner.address});
+      const res = await sampleERC721.setApprovalForAll(marketplace.address, true, {from: owner.address})
+      await marketplace.listNFT(sampleERC721.address, 2, "test", 1000000);
+      const tx =await marketplace.connect(addr1).buyNFT(2,{from: addr1.address,value:1000000});
+      let receipt = await tx.wait();
+      expect(receipt.events).to.not.equal([])
+      const res2 = receipt.events?.filter((x) => {
+        return x.event == "NFTBought"
+      });
+      expect(res2[0].event).to.equal("NFTBought")
+      expect(addr1.address).to.equal(receipt.events[2].args[4])
+    })
 
+    it("Should send the money to the seller", async () =>{
+      await sampleERC721.mintToken(owner.address, 3, {from: owner.address});
+      const res = await sampleERC721.setApprovalForAll(marketplace.address, true, {from: owner.address})
+      const balance = await ethers.provider.getBalance(owner.address);
+      await marketplace.listNFT(sampleERC721.address, 3, "test", 1000000000000000);
+      const tx =await marketplace.connect(addr1).buyNFT(3,{from: addr1.address,value:1000000000000000});
+      const balance2 = await ethers.provider.getBalance(owner.address);
+      expect(balance2).to.be.above(balance )
+      
+    })
+  })
 })
