@@ -43,6 +43,17 @@ contract Marketplace {
         uint256 _price
     );
 
+    event NFTBought(
+        uint256 indexed _marketItemId,
+        address indexed _contractAddress,
+        uint256 indexed _tokenId,
+        address _seller,
+        address _newOwner,
+        uint256 _price
+    );
+
+
+
     constructor(uint256 _curationFee) {
         console.log("Deploying a Marketplace with curation fee:", _curationFee);
         curationFee = _curationFee;
@@ -86,5 +97,25 @@ contract Marketplace {
 
     function getCurationFee() public view returns (uint256) {
         return curationFee;
+    }
+
+    function buyNFT(uint256 marketItemId) external payable {
+        uint256 _price = marketBasket[marketItemId].price;
+        uint256 _tokenId = marketBasket[marketItemId].tokenId;
+        address payable _seller = marketBasket[marketItemId].seller;
+        address _contractAddress = marketBasket[marketItemId].contractAddress;
+        require(msg.value == _price, "Value must match the price");
+        marketBasket[marketItemId].owner = payable(msg.sender);
+        IERC721(_contractAddress).transferFrom(_seller, msg.sender, _tokenId);
+        _seller.transfer(_price);
+        emit NFTBought(
+            marketItemId,
+            _contractAddress,
+            _tokenId,
+            _seller,
+            msg.sender,
+            _price
+        );
+
     }
 }
