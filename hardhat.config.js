@@ -1,3 +1,5 @@
+const { version } = require('chai');
+
 require('dotenv').config();
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
@@ -47,12 +49,20 @@ module.exports = {
     apiKey: etherscanApiKey
   },
   solidity: {
-    version: "0.8.7",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 1000,
+    compilers: [
+      {
+        version: "0.5.12",
       },
-    },
-  }
+      {
+        version: "0.8.7",
+        settings: {
+          optimizer: {
+          enabled: true,
+          runs: 1000,
+          }
+        }
+      },
+    ],
+  },
 };
+
