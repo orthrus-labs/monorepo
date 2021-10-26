@@ -2,7 +2,7 @@
 import {
     Web3
 } from 'svelte-web3'
-import GreeterContract from '../../../artifacts/contracts/Greeter.sol/Greeter.json'
+import MarketplaceContract from '../../../artifacts/contracts/Marketplace.sol/Marketplace.json'
 
 async function getGreetings() {
     if (Web3) {
@@ -12,7 +12,7 @@ async function getGreetings() {
         const networkId = await web3.eth.net.getId()
         console.log("networkId:", networkId)
         const contract = new web3.eth.Contract(
-            GreeterContract.abi,
+            MarketplaceContract.abi,
             "0x26d945Af40c92878f64093e7744b4F51eA401DfF"
         );
         const response = await contract.methods.greet().call()

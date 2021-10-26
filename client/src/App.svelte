@@ -7,6 +7,7 @@ import {
 import {
     Web3
 } from "svelte-web3";
+import Navbar from "./lib/Navbar.svelte";
 async function connectWallet() {
     if (window.ethereum) {
         if (Web3) {
@@ -27,6 +28,7 @@ $: metamaskConnected = window.ethereum ? window.ethereum.isConnected() : false;
 </script>
 
 <Router>
+    <Navbar />
     {#if window.ethereum }
     <p>Brownser wallet already connected to metamask</p>
     {/if}
