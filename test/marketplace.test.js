@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const prov = ethers.getDefaultProvider();
 describe("Marketplace contract", () => {
   let owner
   let addr1
