@@ -11,10 +11,13 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 
 /// @title The Nifty Lair Marketplace
 /// @notice Manage NFT Marketplace
-contract Marketplace {
+contract Marketplace is Ownable{
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
@@ -138,7 +141,7 @@ contract Marketplace {
         require(msg.value == _price, "Value must match the price");
         marketBasket[marketItemId].owner = payable(msg.sender);
         IERC721(_contractAddress).transferFrom(_seller, msg.sender, _tokenId);
-        _seller.transfer(_price);
+        _seller.transfer(_price - (_price / 100));
         emit NFTBought(
             marketItemId,
             _contractAddress,
