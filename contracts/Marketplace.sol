@@ -10,6 +10,7 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title The Nifty Lair Marketplace
 /// @notice Manage NFT Marketplace
@@ -19,6 +20,7 @@ contract Marketplace {
 
     Counters.Counter private itemIds;
     Counters.Counter private itemSold;
+    //Counters.Counter private userIds;
 
     uint256 private curationFee;
 
@@ -32,7 +34,17 @@ contract Marketplace {
         uint256 price; // Defined by the seller.
     }
 
+    struct bondedNFT {
+        uint256 tokenId;
+        uint256 amount;
+        address user;
+        bool isBond;
+        uint256 timeStamp;
+        address erc20Address;
+    }
+
     mapping(uint256 => listedNFT) marketBasket;
+    mapping(uint256 => mapping (address => bondedNFT)) boundMap;
 
     event NFTListed(
         uint256 indexed _marketItemId,
@@ -42,6 +54,36 @@ contract Marketplace {
         address _newOwner,
         uint256 _price
     );
+
+    event NFTBought(
+        uint256 indexed _marketItemId,
+        address indexed _contractAddress,
+        uint256 indexed _tokenId,
+        address _seller,
+        address _newOwner,
+        uint256 _price
+    );
+
+    event NFTBond(
+        uint256 indexed _marketItemId,
+        uint256 indexed _tokenId,
+        uint256 _amount,
+        uint256 _timestamp,
+        address _erc20Address,
+        bool _isBond,
+        address _user
+    );
+
+    event NFTUnbond(
+        uint256 indexed _marketItemId,
+        uint256 indexed _tokenId,
+        uint256 _amount,
+        uint256 _timestamp,
+        address _erc20Address,
+        bool _isBond,
+        address _user
+    );
+
 
     constructor(uint256 _curationFee) {
         console.log("Deploying a Marketplace with curation fee:", _curationFee);
@@ -86,5 +128,66 @@ contract Marketplace {
 
     function getCurationFee() public view returns (uint256) {
         return curationFee;
+    }
+
+    function buyNFT(uint256 marketItemId) external payable {
+        uint256 _price = marketBasket[marketItemId].price;
+        uint256 _tokenId = marketBasket[marketItemId].tokenId;
+        address payable _seller = marketBasket[marketItemId].seller;
+        address _contractAddress = marketBasket[marketItemId].contractAddress;
+        require(msg.value == _price, "Value must match the price");
+        marketBasket[marketItemId].owner = payable(msg.sender);
+        IERC721(_contractAddress).transferFrom(_seller, msg.sender, _tokenId);
+        _seller.transfer(_price);
+        emit NFTBought(
+            marketItemId,
+            _contractAddress,
+            _tokenId,
+            _seller,
+            msg.sender,
+            _price
+        );
+    }
+
+    function bondNFT(
+        uint256 marketItemId,
+        uint256 amount,
+        address erc20Address
+    ) external {
+        require(amount > 0, "Amount must be higher than 0");
+        require(IERC20(erc20Address).balanceOf(msg.sender) >= amount, "Balance must be at least equal to the amount");
+        require(boundMap[marketItemId][msg.sender].isBond == false, "User is already bonded");
+        IERC20(erc20Address).transferFrom(msg.sender, address(this), amount);
+        boundMap[marketItemId][msg.sender].amount = amount;
+        boundMap[marketItemId][msg.sender].user = msg.sender;
+        boundMap[marketItemId][msg.sender].isBond = true;
+        boundMap[marketItemId][msg.sender].tokenId = marketBasket[marketItemId].tokenId;
+        boundMap[marketItemId][msg.sender].erc20Address = erc20Address;
+        boundMap[marketItemId][msg.sender].timeStamp = block.timestamp;
+         emit NFTBond(
+            marketItemId,
+            marketBasket[marketItemId].tokenId,
+            amount,
+            block.timestamp,
+            erc20Address,
+            true,
+            msg.sender
+        );
+    }
+
+    function unbondNFT(uint marketItemId) external{
+        require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond");
+        uint256 amount = boundMap[marketItemId][msg.sender].amount;
+        IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(address(this), msg.sender, amount);
+        boundMap[marketItemId][msg.sender].isBond = false;
+        emit NFTUnbond(
+            marketItemId,
+            marketBasket[marketItemId].tokenId,
+            amount,
+            block.timestamp,
+            boundMap[marketItemId][msg.sender].erc20Address,
+            false,
+            msg.sender
+        );
     }
 }
