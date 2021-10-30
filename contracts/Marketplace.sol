@@ -45,7 +45,11 @@ contract Marketplace {
     }
 
     mapping(uint256 => listedNFT) marketBasket;
+<<<<<<< HEAD
     mapping(uint256 => mapping (address => bondedNFT)) boundMap;
+=======
+    mapping(uint256 => mapping(uint256 => bondedNFT)) boundMap;
+>>>>>>> f37b6b61a9ffee84ade1880a09887b72465352c0
 
     event NFTListed(
         uint256 indexed _marketItemId,
@@ -64,8 +68,6 @@ contract Marketplace {
         address _newOwner,
         uint256 _price
     );
-
-
 
     constructor(uint256 _curationFee) {
         console.log("Deploying a Marketplace with curation fee:", _curationFee);
@@ -131,7 +133,11 @@ contract Marketplace {
         );
     }
 
-    function bondNFT(uint256 marketItemId, uint256 amount, address erc20Address) external {
+    function bondNFT(
+        uint256 marketItemId,
+        uint256 amount,
+        address erc20Address
+    ) external {
         require(amount > 0, "Amount must be higher than 0");
         require(IERC20(erc20Address).balanceOf(msg.sender) >= amount, "Balance must be at least equal to the amount");
         require(boundMap[marketItemId][msg.sender].isBond == false, "User is already bonded");
