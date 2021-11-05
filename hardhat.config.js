@@ -6,6 +6,7 @@ require("@nomiclabs/hardhat-etherscan");
 
 const mnemonic = process.env["MNEMONIC"];
 const etherscanApiKey = process.env['ETHERSCAN_API_KEY']
+const polyscanApiKey = process.env['POLYSCAN_API_KEY']
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -46,7 +47,7 @@ module.exports = {
     }
   },
   etherscan: {
-    apiKey: etherscanApiKey
+    apiKey: polyscanApiKey
   },
   solidity: {
     compilers: [
