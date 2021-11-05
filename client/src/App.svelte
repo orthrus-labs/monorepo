@@ -8,6 +8,14 @@ import {
     Web3
 } from "svelte-web3";
 import Navbar from "./lib/Navbar.svelte";
+import { onMount } from 'svelte';
+
+// connect to Moralis server
+Moralis.initialize(
+    import.meta.env.VITE_MORALIS_APP_ID);
+Moralis.serverURL =
+    import.meta.env.VITE_MORALIS_SERVER_URI;
+
 async function connectWallet() {
     if (window.ethereum) {
         if (Web3) {
@@ -17,17 +25,6 @@ async function connectWallet() {
             return address[0]
         } else {
             console.log("Web3 is not defined")
-        }
-    }
-}
-
-async function getAddress() {
-    if (window.ethereum) {
-        if (Web3) {
-            window.web3 = new Web3(ethereum);
-            return await ethereum.request({
-                method: 'eth_requestAccounts '
-            })
         }
     }
 }
@@ -43,10 +40,10 @@ $: metamaskConnected = window.ethereum ? window.ethereum.isConnected() : false;
     <div class="p-4 lg:p-10">
         {#if window.ethereum }
         <p>Browser wallet already connected to Metamask</p>
-            <!-- svelte-ignore empty-block -->
+        <!-- svelte-ignore empty-block -->
         {#await promise}
         {:then address}
-            <div class="badge badge-primary">{address}</div>
+        <div class="badge badge-primary">{address}</div>
         {/await}
 
         {/if}

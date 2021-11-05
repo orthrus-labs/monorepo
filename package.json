@@ -36,5 +36,9 @@
     "hardhat": "^2.6.7",
     "prettier": "^2.4.1",
     "prettier-plugin-solidity": "^1.0.0-beta.18"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "moralis": "^0.0.111"
   }
 }
