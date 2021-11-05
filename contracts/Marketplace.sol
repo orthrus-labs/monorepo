@@ -12,12 +12,11 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+import "./interface/IERC1155.sol";
 
 /// @title The Nifty Lair Marketplace
 /// @notice Manage NFT Marketplace
-contract Marketplace is Ownable{
+ contract Marketplace is Ownable{
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
@@ -26,6 +25,7 @@ contract Marketplace is Ownable{
     //Counters.Counter private userIds;
 
     uint256 private curationFee;
+    address public erc1155Address;
 
     struct listedNFT {
         uint256 id;
@@ -35,6 +35,7 @@ contract Marketplace is Ownable{
         address payable seller; // The seller = the current owner of the NFT
         address payable owner; // The future NFT owner: set to 0 when NFT listed initially because the new owner is not known yet.
         uint256 price; // Defined by the seller.
+        uint256 timestampNFT;
     }
 
     struct bondedNFT {
@@ -55,7 +56,8 @@ contract Marketplace is Ownable{
         uint256 indexed _tokenId,
         address _seller,
         address _newOwner,
-        uint256 _price
+        uint256 _price,
+        uint256 _timestampNFT
     );
 
     event NFTBought(
@@ -88,9 +90,10 @@ contract Marketplace is Ownable{
     );
 
 
-    constructor(uint256 _curationFee) {
+    constructor(uint256 _curationFee, address _erc1155Address) {
         console.log("Deploying a Marketplace with curation fee:", _curationFee);
         curationFee = _curationFee;
+        erc1155Address = _erc1155Address;
     }
 
     // @notice List the NFT on marketplace.
@@ -117,6 +120,7 @@ contract Marketplace is Ownable{
         marketBasket[marketItemId].owner = payable(address(0));
         marketBasket[marketItemId].price = _price;
         marketBasket[marketItemId].metadataUri = _metadataUri;
+        marketBasket[marketItemId].timestampNFT = block.timestamp;
         // Approve the marketplace contract to transfer the nft.
         IERC721(_contractAddress).approve(address(this), _tokenId);
         emit NFTListed(
@@ -125,7 +129,8 @@ contract Marketplace is Ownable{
             _tokenId,
             msg.sender,
             address(0),
-            _price
+            _price,
+             marketBasket[marketItemId].timestampNFT
         );
     }
 
@@ -167,6 +172,7 @@ contract Marketplace is Ownable{
         boundMap[marketItemId][msg.sender].tokenId = marketBasket[marketItemId].tokenId;
         boundMap[marketItemId][msg.sender].erc20Address = erc20Address;
         boundMap[marketItemId][msg.sender].timeStamp = block.timestamp;
+        IERC1155(erc1155Address).mint(msg.sender, marketItemId, amount, "0x00"); 
          emit NFTBond(
             marketItemId,
             marketBasket[marketItemId].tokenId,
@@ -183,6 +189,7 @@ contract Marketplace is Ownable{
         uint256 amount = boundMap[marketItemId][msg.sender].amount;
         IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(address(this), msg.sender, amount);
         boundMap[marketItemId][msg.sender].isBond = false;
+        IERC1155(erc1155Address).burn(msg.sender, marketItemId, amount);
         emit NFTUnbond(
             marketItemId,
             marketBasket[marketItemId].tokenId,
