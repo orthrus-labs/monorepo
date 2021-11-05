@@ -12,18 +12,29 @@ describe("Marketplace contract", () => {
   let sampleERC20
   let Marketplace
   let marketplace
+  let SampleERC1155
+  let sampleERC1155
+  let SampleERC721URI
+  let sampleERC721URI
 
   before(async () => {
     SampleERC721 = await ethers.getContractFactory('SampleERC721');
     SampleERC20 = await ethers.getContractFactory('Dai');
+    SampleERC1155 = await ethers.getContractFactory('SampleERC1155');
+    SampleERC721URI = await ethers.getContractFactory('NFT');
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners()
     sampleERC721 = await SampleERC721.deploy("CryptoLizards", "CLIZ")
     await sampleERC721.deployed()
+    sampleERC721URI = await SampleERC721URI.deploy("Eskere", "ESK", "https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/")
+    await sampleERC721URI.deployed()
     sampleERC20 = await SampleERC20.deploy(0);
     await sampleERC20.deployed()
+    sampleERC1155 = await SampleERC1155.deploy("https://example");
+    await sampleERC1155.deployed()
     Marketplace = await ethers.getContractFactory("Marketplace");
-    marketplace = await Marketplace.deploy("10")
+    marketplace = await Marketplace.deploy("10",sampleERC1155.address)
     await marketplace.deployed()
+    sampleERC1155.setMarketplaceAddress(marketplace.address, {from: owner.address})
   });
 
   describe("Deployment", () => {
@@ -70,14 +81,17 @@ describe("Marketplace contract", () => {
       expect(res2[0].event).to.equal("NFTBought")
       expect(addr1.address).to.equal(receipt.events[2].args[4])
     })
-    it("Should send the money to the seller", async () => {
+    it("Should send the money to the seller and to the marketplace", async () => {
       await sampleERC721.mintToken(owner.address, 3, {from: owner.address});
       const res = await sampleERC721.setApprovalForAll(marketplace.address, true, {from: owner.address})
-      const balance = await ethers.provider.getBalance(owner.address);
+      const balanceOwner = await ethers.provider.getBalance(owner.address);
+      const balanceMarketplace = await ethers.provider.getBalance(marketplace.address);
       await marketplace.listNFT(sampleERC721.address, 3, "test", 1000000000000000);
       const tx =await marketplace.connect(addr1).buyNFT(3,{from: addr1.address,value:1000000000000000});
-      const balance2 = await ethers.provider.getBalance(owner.address);
-      expect(balance2).to.be.above(balance)     
+      const balanceOwner2 = await ethers.provider.getBalance(owner.address);
+      const balanceMarketplace2 = await ethers.provider.getBalance(marketplace.address);
+      expect(balanceOwner2).to.be.above(balanceOwner)     
+      expect(balanceMarketplace2).to.be.above(balanceMarketplace) 
     })
   })
 
@@ -101,7 +115,7 @@ describe("Marketplace contract", () => {
   })
 
   describe("Bond ERC20 tokens", () => {
-    it("Should let users bond different amount of ERC20s to an NFT", async () => {
+    it("Should let users bond different amount of ERC20s to an NFT and sets the user position", async () => {
       await marketplace.bondNFT(3, 5, sampleERC20.address, {from: owner.address})
       expect(await sampleERC20.balanceOf(owner.address)).to.equal(5)
       await marketplace.connect(addr1).bondNFT(3, 10, sampleERC20.address, {from: addr1.address})
@@ -109,6 +123,42 @@ describe("Marketplace contract", () => {
       await marketplace.connect(addr2).bondNFT(3, 15, sampleERC20.address, {from: addr2.address})
       expect(await sampleERC20.balanceOf(addr2.address)).to.equal(15)
       // THIS SHOULD FAIL! OR MAYBE NOT? What if the owner bonds to itself?
+      expect(await sampleERC20.balanceOf(marketplace.address)).to.equal(30)
+    })
+    it("Should let the user mint the selected amount of ERC1155 tokens", async () => {
+      expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(5)
+      expect(await sampleERC1155.balanceOf(addr1.address, 3)).to.equal(10)
+      expect(await sampleERC1155.balanceOf(addr2.address, 3)).to.equal(15)
     })
   })
+
+  describe("Unbond ERC20 tokens", () => {
+    it("Should let users unbond the amount of ERC20 tokens they have previously bonded", async () => {
+      await sampleERC1155.setApprovalForAll(marketplace.address, true)
+      await marketplace.unbondNFT(3, {from: owner.address});
+      expect(await sampleERC20.balanceOf(owner.address)).to.equal(10)
+    })
+    it("Should burn the ERC1155 tokens", async () => {
+      expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(0)
+    })
+  })
+
+  describe("Ownable", () => {
+    it("Set the owner", async () => {
+      expect(await marketplace.owner()).to.equal(owner.address)
+    })
+  })
+
+  describe("ERC1155", () => {
+    it("Should deploy the contract", async () => {
+      expect(sampleERC1155.address).to.not.be.undefined;
+    })
+  })
+
+  describe("ERC721", () => {
+    it("Should set the correct URI", async () => {
+      expect(await sampleERC721URI.tokenURI(1)).to.equal("https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/1.json")
+    })
+  })
+
 })
