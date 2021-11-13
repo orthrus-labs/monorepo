@@ -52,7 +52,7 @@ import "./interface/Math.sol";
     }
 
     mapping(uint256 => listedNFT) marketBasket;
-    mapping(uint256 => mapping (address => bondedNFT)) boundMap;
+    mapping(uint256 => mapping(address => bondedNFT)) boundMap;
 
     event NFTListed(
         uint256 indexed _marketItemId,
@@ -195,10 +195,17 @@ import "./interface/Math.sol";
         );
     }
 
-    function unbondNFT(uint marketItemId) external{
-        require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond");
+    function unbondNFT(uint256 marketItemId) external {
+        require(
+            boundMap[marketItemId][msg.sender].isBond == true,
+            "User is not bond"
+        );
         uint256 amount = boundMap[marketItemId][msg.sender].amount;
-        IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(address(this), msg.sender, amount);
+        IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(
+            address(this),
+            msg.sender,
+            amount
+        );
         boundMap[marketItemId][msg.sender].isBond = false;
         IERC1155(erc1155Address).burn(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower);
         marketBasket[marketItemId].totalVotingPower = marketBasket[marketItemId].totalVotingPower - boundMap[marketItemId][msg.sender].votingPower;

@@ -4,7 +4,7 @@ export let img;
 
 <div class="card bordered object-scale-down h-auto p-10">
     <figure>
-        <img  src={img}>
+        <img src={img}>
     </figure>
     <div class="card-body">
         <h2 class="card-title">Top image
