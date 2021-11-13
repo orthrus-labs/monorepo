@@ -64,7 +64,6 @@ onMount( async () => {
   </div> 
   <button on:click={listNFT(_tokenId)}>List NFT</button> 
   { #each nfts as item (item)}
-  {console.log(item.attributes.name)}
   <div class="card bordered">
     <figure>
       <img src="https://picsum.photos/id/1005/400/250">
@@ -73,6 +72,9 @@ onMount( async () => {
       <h2 class="card-title">{item.attributes.name}
         <div class="badge mx-2 badge-secondary">{item.attributes.token_id}</div>
       </h2> 
+      {console.log("token uri:", item.attributes.token_uri)}
+      <img src={item.attributes.token_uri}>
+
       <div class="justify-end card-actions">
         <button on:click={listNFT(item.attributes.token_id)} class="btn btn-secondary">List NFT</button>
       </div>
