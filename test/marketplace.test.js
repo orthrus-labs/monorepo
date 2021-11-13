@@ -5,6 +5,7 @@ describe("Marketplace contract", () => {
   let owner
   let addr1
   let addr2
+  let addr3
   let addrs
   let SampleERC721
   let sampleERC721
@@ -22,7 +23,7 @@ describe("Marketplace contract", () => {
     SampleERC20 = await ethers.getContractFactory('Dai');
     SampleERC1155 = await ethers.getContractFactory('SampleERC1155');
     SampleERC721URI = await ethers.getContractFactory('NFT');
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners()
+    [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners()
     sampleERC721 = await SampleERC721.deploy("CryptoLizards", "CLIZ")
     await sampleERC721.deployed()
     sampleERC721URI = await SampleERC721URI.deploy("Eskere", "ESK", "https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/")
@@ -95,53 +96,57 @@ describe("Marketplace contract", () => {
     })
   })
 
-  describe("Mint & Distribution of DAI", async () => {
-    it("Should Mint ERC20 tokens successfully", async () => {
-      await sampleERC20.mint(owner.address, 10, {from: owner.address})
-      expect(await sampleERC20.balanceOf(owner.address)).to.equal(10)
-      await sampleERC20.mint(addr1.address, 20, {from: owner.address})
-      expect(await sampleERC20.balanceOf(addr1.address)).to.equal(20)
-      await sampleERC20.mint(addr2.address, 30, {from: owner.address})
-      expect(await sampleERC20.balanceOf(addr2.address)).to.equal(30)
-    })
-    it("Should approve the marketplace to move owner's and other addresses DAI tokens", async () => {
-      await sampleERC20.approve(marketplace.address, 999999999999, {from: owner.address})
-      expect(await sampleERC20.allowance(owner.address, marketplace.address)).to.equal(999999999999)
-      await sampleERC20.connect(addr1).approve(marketplace.address, 999999999999, {from: addr1.address})
-      expect(await sampleERC20.allowance(addr1.address, marketplace.address)).to.equal(999999999999)
-      await sampleERC20.connect(addr2).approve(marketplace.address, 999999999999, {from: addr2.address})
-      expect(await sampleERC20.allowance(addr2.address, marketplace.address)).to.equal(999999999999)
-    })
-  })
+    describe("Mint & Distribution of DAI", async () => {
+     it("Should Mint ERC20 tokens successfully", async () => {
+       await sampleERC20.mint(owner.address, 100, {from: owner.address})
+       expect(await sampleERC20.balanceOf(owner.address)).to.equal(100)
+       await sampleERC20.mint(addr1.address, 100, {from: owner.address})
+       expect(await sampleERC20.balanceOf(addr1.address)).to.equal(100)
+       await sampleERC20.mint(addr2.address, 100, {from: owner.address})
+       expect(await sampleERC20.balanceOf(addr2.address)).to.equal(100)
+       await sampleERC20.mint(addr3.address, 100, {from: owner.address})
+       expect(await sampleERC20.balanceOf(addr3.address)).to.equal(100)
+     })
+     it("Should approve the marketplace to move owner's and other addresses DAI tokens", async () => {
+       await sampleERC20.approve(marketplace.address, 999999999999, {from: owner.address})
+       expect(await sampleERC20.allowance(owner.address, marketplace.address)).to.equal(999999999999)
+       await sampleERC20.connect(addr1).approve(marketplace.address, 999999999999, {from: addr1.address})
+       expect(await sampleERC20.allowance(addr1.address, marketplace.address)).to.equal(999999999999)
+       await sampleERC20.connect(addr2).approve(marketplace.address, 999999999999, {from: addr2.address})
+       expect(await sampleERC20.allowance(addr2.address, marketplace.address)).to.equal(999999999999)
+       await sampleERC20.connect(addr3).approve(marketplace.address, 999999999999, {from: addr3.address})
+       expect(await sampleERC20.allowance(addr3.address, marketplace.address)).to.equal(999999999999)
+     })
+   })
 
-  describe("Bond ERC20 tokens", () => {
-    it("Should let users bond different amount of ERC20s to an NFT and sets the user position", async () => {
-      await marketplace.bondNFT(3, 5, sampleERC20.address, {from: owner.address})
-      expect(await sampleERC20.balanceOf(owner.address)).to.equal(5)
-      await marketplace.connect(addr1).bondNFT(3, 10, sampleERC20.address, {from: addr1.address})
-      expect(await sampleERC20.balanceOf(addr1.address)).to.equal(10)
-      await marketplace.connect(addr2).bondNFT(3, 15, sampleERC20.address, {from: addr2.address})
-      expect(await sampleERC20.balanceOf(addr2.address)).to.equal(15)
-      // THIS SHOULD FAIL! OR MAYBE NOT? What if the owner bonds to itself?
-      expect(await sampleERC20.balanceOf(marketplace.address)).to.equal(30)
-    })
-    it("Should let the user mint the selected amount of ERC1155 tokens", async () => {
-      expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(5)
-      expect(await sampleERC1155.balanceOf(addr1.address, 3)).to.equal(10)
-      expect(await sampleERC1155.balanceOf(addr2.address, 3)).to.equal(15)
-    })
-  })
+  // describe("Bond ERC20 tokens", () => {
+  //   it("Should let users bond different amount of ERC20s to an NFT ", async () => {
+  //     await marketplace.bondNFT(3, 5, sampleERC20.address, {from: owner.address})
+  //     expect(await sampleERC20.balanceOf(owner.address)).to.equal(5)
+  //     await marketplace.connect(addr1).bondNFT(3, 10, sampleERC20.address, {from: addr1.address})
+  //     expect(await sampleERC20.balanceOf(addr1.address)).to.equal(10)
+  //     await marketplace.connect(addr2).bondNFT(3, 15, sampleERC20.address, {from: addr2.address})
+  //     expect(await sampleERC20.balanceOf(addr2.address)).to.equal(15)
+  //     // THIS SHOULD FAIL! OR MAYBE NOT? What if the owner bonds to itself?
+  //     expect(await sampleERC20.balanceOf(marketplace.address)).to.equal(30)
+  //   })
+  //   it("Should let the user mint the selected amount of ERC1155 tokens", async () => {
+  //     expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(5)
+  //     expect(await sampleERC1155.balanceOf(addr1.address, 3)).to.equal(10)
+  //     expect(await sampleERC1155.balanceOf(addr2.address, 3)).to.equal(15)
+  //   })
+  // })
 
-  describe("Unbond ERC20 tokens", () => {
-    it("Should let users unbond the amount of ERC20 tokens they have previously bonded", async () => {
-      await sampleERC1155.setApprovalForAll(marketplace.address, true)
-      await marketplace.unbondNFT(3, {from: owner.address});
-      expect(await sampleERC20.balanceOf(owner.address)).to.equal(10)
-    })
-    it("Should burn the ERC1155 tokens", async () => {
-      expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(0)
-    })
-  })
+  // describe("Unbond ERC20 tokens", () => {
+  //   it("Should let users unbond the amount of ERC20 tokens they have previously bonded", async () => {
+  //     await sampleERC1155.setApprovalForAll(marketplace.address, true)
+  //     await marketplace.unbondNFT(3, {from: owner.address});
+  //     expect(await sampleERC20.balanceOf(owner.address)).to.equal(10)
+  //   })
+  //   it("Should burn the ERC1155 tokens", async () => {
+  //     expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(0)
+  //   })
+  // })
 
   describe("Ownable", () => {
     it("Set the owner", async () => {
@@ -158,6 +163,29 @@ describe("Marketplace contract", () => {
   describe("ERC721", () => {
     it("Should set the correct URI", async () => {
       expect(await sampleERC721URI.tokenURI(1)).to.equal("https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/1.json")
+    })
+  })
+
+  describe("Voting Power", () => {
+    it("Should set the correct voting power", async ({ web3 }) => {
+      await sampleERC721.mintToken(owner.address, 4, {from: owner.address});
+      const bn =  ethers.constants.WeiPerEther;
+      console.log(bn)
+      await marketplace.listNFT(sampleERC721.address, 4, "test", ethers.constants.WeiPerEther);
+      await marketplace.connect(addr1).bondNFT(4, 100, sampleERC20.address, {from: addr1.address});
+      await marketplace.connect(addr2).bondNFT(4, 100, sampleERC20.address, {from: addr2.address});
+      await marketplace.connect(addr3).bondNFT(4, 100, sampleERC20.address, {from: addr3.address});
+      await marketplace.connect(owner).buyNFT(4, {from: owner.address, value: ethers.constants.WeiPerEther});
+      expect(await sampleERC1155.balanceOf(addr1.address, 4)).to.equal(1000);
+      expect(await sampleERC1155.balanceOf(addr2.address, 4)).to.equal(916);
+      expect(await sampleERC1155.balanceOf(addr3.address, 4)).to.equal(871);
+      await sampleERC1155.connect(addr1).setApprovalForAll(marketplace.address, true, {from: addr1.address})
+      const balanceAddr1 = await ethers.provider.getBalance(addr1.address);
+      await marketplace.connect(addr1).claimReward(4, {from:addr1.address});
+      const balanceAddr2 = await ethers.provider.getBalance(addr1.address);
+      expect(await sampleERC1155.balanceOf(addr1.address, 4)).to.equal(0);
+      expect(await sampleERC20.balanceOf(addr1.address)).to.equal(100);
+      expect(balanceAddr2).to.be.above(balanceAddr1)
     })
   })
 
