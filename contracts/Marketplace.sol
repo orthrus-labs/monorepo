@@ -177,7 +177,7 @@ import "./interface/Math.sol";
         boundMap[marketItemId][msg.sender].amount = amount;
         boundMap[marketItemId][msg.sender].user = msg.sender;
         boundMap[marketItemId][msg.sender].isBond = true;
-        boundMap[marketItemId][msg.sender].tokenId = marketBasket[marketItemId].tokenId;
+        boundMap[marketItemId][msg.sender].tokenId = marketBasket[marketItemId];
         boundMap[marketItemId][msg.sender].erc20Address = erc20Address;
         boundMap[marketItemId][msg.sender].timeStamp =  block.timestamp;
         boundMap[marketItemId][msg.sender].votingPower = votingPowerCalculation(boundMap[marketItemId][msg.sender].timeStamp, boundMap[marketItemId][msg.sender].amount, marketItemId);
