@@ -37,7 +37,6 @@ import "./interface/Math.sol";
         address payable owner; // The future NFT owner: set to 0 when NFT listed initially because the new owner is not known yet.
         uint256 price; // Defined by the seller.
         uint256 timestampNFT;
-        uint256 userPosition;
         uint256 totalVotingPower;
         uint256 tokenValue;
     }
@@ -49,7 +48,6 @@ import "./interface/Math.sol";
         bool isBond;
         uint256 timeStamp;
         address erc20Address;
-        uint256 userPosition;
         uint256 votingPower;
     }
 
@@ -82,7 +80,8 @@ import "./interface/Math.sol";
         uint256 _timestamp,
         address _erc20Address,
         bool _isBond,
-        address _user
+        address _user,
+        uint256 _votingPower
     );
 
     event NFTUnbond(
@@ -127,8 +126,7 @@ import "./interface/Math.sol";
         marketBasket[marketItemId].price = _price;
         marketBasket[marketItemId].metadataUri = _metadataUri;
         marketBasket[marketItemId].timestampNFT = block.timestamp;
-        marketBasket[marketItemId].userPosition = 0;
-        marketBasket[marketItemId].totalVotingPower = 0;
+        marketBasket[marketItemId].totalVotingPower = 1;
         // Approve the marketplace contract to transfer the nft.
         IERC721(_contractAddress).approve(address(this), _tokenId);
         emit NFTListed(
@@ -138,7 +136,7 @@ import "./interface/Math.sol";
             msg.sender,
             address(0),
             _price,
-             marketBasket[marketItemId].timestampNFT
+            marketBasket[marketItemId].timestampNFT
         );
     }
 
@@ -174,26 +172,26 @@ import "./interface/Math.sol";
         require(amount > 0, "Amount must be higher than 0");
         require(IERC20(erc20Address).balanceOf(msg.sender) >= amount, "Balance must be at least equal to the amount");
         require(boundMap[marketItemId][msg.sender].isBond == false, "User is already bonded");
+        require(marketBasket[marketItemId].owner == address(0), "The NFT has been already bought");
         IERC20(erc20Address).transferFrom(msg.sender, address(this), amount);
-        marketBasket[marketItemId].userPosition++;
         boundMap[marketItemId][msg.sender].amount = amount;
         boundMap[marketItemId][msg.sender].user = msg.sender;
         boundMap[marketItemId][msg.sender].isBond = true;
         boundMap[marketItemId][msg.sender].tokenId = marketBasket[marketItemId].tokenId;
         boundMap[marketItemId][msg.sender].erc20Address = erc20Address;
         boundMap[marketItemId][msg.sender].timeStamp =  block.timestamp;
-        boundMap[marketItemId][msg.sender].userPosition = marketBasket[marketItemId].userPosition;
         boundMap[marketItemId][msg.sender].votingPower = votingPowerCalculation(boundMap[marketItemId][msg.sender].timeStamp, boundMap[marketItemId][msg.sender].amount, marketItemId);
         IERC1155(erc1155Address).mint(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower, "0x00"); 
         marketBasket[marketItemId].totalVotingPower = marketBasket[marketItemId].totalVotingPower + boundMap[marketItemId][msg.sender].votingPower;
-         emit NFTBond(
+        emit NFTBond(
             marketItemId,
             marketBasket[marketItemId].tokenId,
             amount,
             block.timestamp,
             erc20Address,
             true,
-            msg.sender
+            msg.sender,
+            boundMap[marketItemId][msg.sender].votingPower
         );
     }
 
