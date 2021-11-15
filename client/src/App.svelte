@@ -8,7 +8,7 @@ import {
     Web3
 } from "svelte-web3";
 import Navbar from "./lib/Navbar.svelte";
-import { onMount } from 'svelte';
+import Footer from "./lib/Footer.svelte";
 
 // connect to Moralis server
 Moralis.initialize(
@@ -52,5 +52,6 @@ $: metamaskConnected = window.ethereum ? window.ethereum.isConnected() : false;
         <button on:click={onClickConnectWallet}> Connect wallet</button>
         {/if}
         <Navbar />
+        <Footer />
     </div>
 </Router>

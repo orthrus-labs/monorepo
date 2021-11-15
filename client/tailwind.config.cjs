@@ -12,7 +12,7 @@ const config = {
 
   daisyui: {
     themes: [
-      'cyberpunk'
+      'wireframe'
     ]
   }
 };
