@@ -9,6 +9,7 @@
     "deploy-mumbai": "npx hardhat run --network mumbai scripts/deploy.js",
     "deploy-rinkeby": "npx hardhat run --network rinkeby scripts/deploy.js",
     "deploy-nft-mumbai": "npx hardhat run --network mumbai scripts/deploySampleNFT.js",
+    "deploy-nft-mumbai2": "npx hardhat run --network mumbai scripts/deploySampleERC721URI.js",
     "deploy-nft-rinkeby": "npx hardhat run --network rinkeby scripts/deploySampleNFT.js",
     "verify": "npx hardhat verify",
     "prettier": "prettier --write 'contracts/**/*.sol'",
