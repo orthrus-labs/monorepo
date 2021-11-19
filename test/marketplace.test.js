@@ -19,11 +19,14 @@ describe("Marketplace contract", () => {
   let sampleERC721URI
 
   before(async () => {
+    LinkToken = await ethers.getContractFactory('LinkToken');
     SampleERC721 = await ethers.getContractFactory('SampleERC721');
     SampleERC20 = await ethers.getContractFactory('Dai');
     SampleERC1155 = await ethers.getContractFactory('SampleERC1155');
     SampleERC721URI = await ethers.getContractFactory('NFT');
     [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners()
+    linkToken = await LinkToken.deploy();
+    await linkToken.deployed();
     sampleERC721 = await SampleERC721.deploy("CryptoLizards", "CLIZ")
     await sampleERC721.deployed()
     sampleERC721URI = await SampleERC721URI.deploy("Eskere", "ESK", "https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/")
@@ -33,9 +36,12 @@ describe("Marketplace contract", () => {
     sampleERC1155 = await SampleERC1155.deploy("https://example");
     await sampleERC1155.deployed()
     Marketplace = await ethers.getContractFactory("Marketplace");
-    marketplace = await Marketplace.deploy("10",sampleERC1155.address)
+    marketplace = await Marketplace.deploy("10", sampleERC1155.address, linkToken.address)
     await marketplace.deployed()
     sampleERC1155.setMarketplaceAddress(marketplace.address, {from: owner.address})
+    let fund_tx = await linkToken.transfer(marketplace.address, 100)
+    await fund_tx.wait(1)
+    await linkToken.approve(marketplace.address, 100, {from: owner.address});
   });
 
   describe("Deployment", () => {
@@ -75,7 +81,7 @@ describe("Marketplace contract", () => {
     it("Should transfer the NFT and emit NFTBought event", async () => {
       await sampleERC721.mintToken(owner.address, 2, {from: owner.address});
       const res = await sampleERC721.setApprovalForAll(marketplace.address, true, {from: owner.address})
-      await marketplace.listNFT(sampleERC721.address, 2, "test", 1000000);
+      await marketplace.listNFT(sampleERC721.address, 2, "test", 1000000, {from: owner.address});
       const tx =await marketplace.connect(addr1).buyNFT(2,{from: addr1.address, value:1000000});
       let receipt = await tx.wait();
       expect(receipt.events).to.not.equal([])
@@ -149,7 +155,7 @@ describe("Marketplace contract", () => {
        expect(await sampleERC20.balanceOf(owner.address)).to.equal(150)
      })
      it("Should burn the ERC1155 tokens", async () => {
-       expect(await sampleERC1155.balanceOf(owner.address, 3)).to.equal(0)
+       expect(await sampleERC1155.balanceOf(owner.address, 4)).to.equal(0)
      })
    })
 
