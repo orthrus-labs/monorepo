@@ -14,12 +14,14 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interface/IERC1155.sol";
 import "./interface/Math.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 /// @title The Nifty Lair Marketplace
 /// @notice Manage NFT Marketplace
- contract Marketplace is Ownable, Math{
+ contract Marketplace is Ownable, Math, ChainlinkClient{
     using Counters for Counters.Counter;
     using SafeMath for uint256;
+    using Chainlink for Chainlink.Request;
 
     Counters.Counter private itemIds;
     Counters.Counter private itemSold;
@@ -27,6 +29,14 @@ import "./interface/Math.sol";
 
     uint256 private curationFee;
     address public erc1155Address;
+    string public amountStr;
+    address private oracle;
+    bytes32 private jobId;
+    uint256 private fee;
+    string private str1;
+    string private str2;
+    address private account;
+    uint256 private marketItemIdGlobal;
 
     struct listedNFT {
         uint256 id;
@@ -80,8 +90,7 @@ import "./interface/Math.sol";
         uint256 _timestamp,
         address _erc20Address,
         bool _isBond,
-        address _user,
-        uint256 _votingPower
+        address _user
     );
 
     event NFTUnbond(
@@ -94,11 +103,21 @@ import "./interface/Math.sol";
         address _user
     );
 
+    event VotingPower(
+        uint256 _votingPower
+    );
 
-    constructor(uint256 _curationFee, address _erc1155Address) {
+
+    constructor(uint256 _curationFee, address _erc1155Address, address _linkToken) {
         console.log("Deploying a Marketplace with curation fee:", _curationFee);
         curationFee = _curationFee;
         erc1155Address = _erc1155Address;
+        setChainlinkToken(_linkToken);
+        oracle = 0x0bDDCD124709aCBf9BB3F824EbC61C87019888bb;
+        jobId = "2bb15c3f9cfc4336b95012872ff05092";
+        fee = 0.01 * 10 ** 18; // (Varies by network and job)
+        str1 = "https://api.mathjs.org/v4/?expr=";
+        str2 = "^(1/8)";
     }
 
     // @notice List the NFT on marketplace.
@@ -113,6 +132,7 @@ import "./interface/Math.sol";
         uint256 _price
     ) external {
         require(_price > 0, "Price must be higher than 0");
+        require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "Only the owner can list the NFT");
         // Increment the counter due to new item listed.
         itemIds.increment();
         // Get the latest id.
@@ -180,9 +200,10 @@ import "./interface/Math.sol";
         boundMap[marketItemId][msg.sender].tokenId = marketBasket[marketItemId].tokenId;
         boundMap[marketItemId][msg.sender].erc20Address = erc20Address;
         boundMap[marketItemId][msg.sender].timeStamp =  block.timestamp;
-        boundMap[marketItemId][msg.sender].votingPower = votingPowerCalculation(boundMap[marketItemId][msg.sender].timeStamp, boundMap[marketItemId][msg.sender].amount, marketItemId);
-        IERC1155(erc1155Address).mint(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower, "0x00"); 
-        marketBasket[marketItemId].totalVotingPower = marketBasket[marketItemId].totalVotingPower + boundMap[marketItemId][msg.sender].votingPower;
+        account = msg.sender;
+        marketItemIdGlobal = marketItemId;
+        uint256 timeStamp = boundMap[marketItemId][msg.sender].timeStamp - marketBasket[marketItemId].timestampNFT;
+        eighthRoot(timeStamp);
         emit NFTBond(
             marketItemId,
             marketBasket[marketItemId].tokenId,
@@ -190,16 +211,13 @@ import "./interface/Math.sol";
             block.timestamp,
             erc20Address,
             true,
-            msg.sender,
-            boundMap[marketItemId][msg.sender].votingPower
+            msg.sender
         );
     }
 
     function unbondNFT(uint256 marketItemId) external {
-        require(
-            boundMap[marketItemId][msg.sender].isBond == true,
-            "User is not bond"
-        );
+        require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond" );
+        require(IERC1155(erc1155Address).balanceOf(msg.sender, marketBasket[marketItemId].tokenId) == boundMap[marketItemId][msg.sender].votingPower);
         uint256 amount = boundMap[marketItemId][msg.sender].amount;
         IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(
             address(this),
@@ -220,12 +238,6 @@ import "./interface/Math.sol";
         );
     }
 
-    function votingPowerCalculation(uint256 _timeStamp, uint256 _amount, uint256 marketItemId) public view returns(uint256 _votingPower){
-        uint256 timeStamp = _timeStamp - marketBasket[marketItemId].timestampNFT;
-        uint256 votingPower = nthRoot(_amount, 2, 5, 10) / nthRoot(timeStamp, 8, 3, 100);
-        return votingPower;
-    }
-
     function claimReward(uint256 marketItemId) public{
         require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond");
         require(marketBasket[marketItemId].owner != address(0));
@@ -235,5 +247,54 @@ import "./interface/Math.sol";
         IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(address(this), msg.sender, boundMap[marketItemId][msg.sender].amount);
         rewarded.transfer(reward);
         
+    }
+
+    function eighthRoot(uint256 _amount) public returns (bytes32 requestId) 
+    {
+        amountStr = uint2str(_amount);   
+        Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);   
+        // Set the URL to perform the GET request on
+        request.add("get", string(abi.encodePacked(str1, amountStr, str2)));                
+        // Multiply the result by 1000000000000000000 to remove decimals
+        int timesAmount = 10**18;
+        request.addInt("times", timesAmount);   
+        // Sends the request
+        return sendChainlinkRequestTo(oracle, request, fee);
+    }
+    
+    /**
+     * Receive the response in the form of uint256
+     */ 
+    function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId)
+    {
+        uint256 votingPower = nthRoot(boundMap[marketItemIdGlobal][account].amount, 2, 18, 10) / (_volume / 100);
+        boundMap[marketItemIdGlobal][account].votingPower = votingPower;
+        IERC1155(erc1155Address).mint(account, marketItemIdGlobal, boundMap[marketItemIdGlobal][account].votingPower, "0x00"); 
+        marketBasket[marketItemIdGlobal].totalVotingPower = marketBasket[marketItemIdGlobal].totalVotingPower + boundMap[marketItemIdGlobal][account].votingPower;
+        emit VotingPower(
+            votingPower
+        );
+    }
+    
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k-1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
     }
 }
