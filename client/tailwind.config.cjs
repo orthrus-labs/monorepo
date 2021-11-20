@@ -3,7 +3,19 @@ const config = {
   purge: ["./src/**/*.{html,js,svelte,ts}"],
 
   theme: {
-    extend: {}
+    extend: {},
+    height: {
+      sm: '8px',
+      md: '16px',
+      lg: '24px',
+      xl: '600px',
+     },
+     margin: {
+      sm: '8px',
+      md: '16px',
+      lg: '24px',
+      xl: '48px',
+     }
   },
 
   plugins: [
@@ -12,6 +24,9 @@ const config = {
 
   daisyui: {
     themes: [
+      //'light'
+      //'CMYK'
+      //'cyberpunk'
       'wireframe'
     ]
   }
