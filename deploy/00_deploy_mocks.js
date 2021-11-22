@@ -14,4 +14,4 @@ module.exports = async ({
         log('Mocks deployed')
     }
 }
-module.exports.tags = ['all', 'rsvg', 'svg']
+module.exports.tags = ['all', 'rsvg', 'svg','mocks']
