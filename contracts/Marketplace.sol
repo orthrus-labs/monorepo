@@ -18,7 +18,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 /// @title The Nifty Lair Marketplace
 /// @notice Manage NFT Marketplace
- contract Marketplace is Ownable, Math, ChainlinkClient{
+ contract Marketplace is Ownable, Utils, ChainlinkClient{
     using Counters for Counters.Counter;
     using SafeMath for uint256;
     using Chainlink for Chainlink.Request;
@@ -61,14 +61,14 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         uint256 iconId;
     }
 
-    struct ChainlinkRequestMap {
+    struct chainlinkRequestMap {
         address sender;
         uint256 marketItemId;
     }
 
     mapping(uint256 => listedNFT) marketBasket;
     mapping(uint256 => mapping(address => bondedNFT)) boundMap;
-    mapping(bytes32 => ChainlinkRequestMap) chainlinkBasket;
+    mapping(bytes32 => chainlinkRequestMap) chainlinkBasket;
 
     event NFTListed(
         uint256 indexed _marketItemId,
@@ -96,7 +96,8 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         uint256 _timestamp,
         address _erc20Address,
         bool _isBond,
-        address _user
+        address _user,
+        bytes32 _requestId
     );
 
     event NFTUnbond(
@@ -111,6 +112,11 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
     event VotingPower(
         uint256 _votingPower
+    );
+
+    event ClaimedReward(
+        uint256 _reward,
+        address _user
     );
 
 
@@ -214,6 +220,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         marketBasket[marketItemId].numberOfBonders = marketBasket[marketItemId].numberOfBonders + 1;
         marketBasket[marketItemId].Bonders.push(msg.sender);
         bytes32 requestId = eighthRoot(timeStamp);
+        console.log("req id in contract:", iconId);
         chainlinkBasket[requestId].sender = msg.sender;
         chainlinkBasket[requestId].marketItemId = marketItemId;
         emit NFTBond(
@@ -222,41 +229,46 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
             amount,
             block.timestamp,
             erc20Address,
-            true,
-            msg.sender
+            boundMap[marketItemId][msg.sender].isBond,
+            msg.sender,
+            requestId
         );
     }
 
-    function unbondNFT(uint256 marketItemId) external {
-        require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond" );
-        require(IERC1155(erc1155Address).balanceOf(msg.sender, marketBasket[marketItemId].tokenId) == boundMap[marketItemId][msg.sender].votingPower);
-        uint256 amount = boundMap[marketItemId][msg.sender].amount;
-        IERC20(boundMap[marketItemId][msg.sender].erc20Address).transfer(
-            msg.sender,
-            amount
-        );
-        boundMap[marketItemId][msg.sender].isBond = false;
-        IERC1155(erc1155Address).burn(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower);
-        marketBasket[marketItemId].totalVotingPower = marketBasket[marketItemId].totalVotingPower - boundMap[marketItemId][msg.sender].votingPower;
-        emit NFTUnbond(
-            marketItemId,
-            marketBasket[marketItemId].tokenId,
-            amount,
-            block.timestamp,
-            boundMap[marketItemId][msg.sender].erc20Address,
-            false,
-            msg.sender
-        );
-    }
+    // function unbondNFT(uint256 marketItemId) external {
+    //     require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond" );
+    //     require(IERC1155(erc1155Address).balanceOf(msg.sender, marketBasket[marketItemId].tokenId) == boundMap[marketItemId][msg.sender].votingPower);
+    //     uint256 amount = boundMap[marketItemId][msg.sender].amount;
+    //     IERC20(boundMap[marketItemId][msg.sender].erc20Address).transfer(
+    //         msg.sender,
+    //         amount
+    //     );
+    //     boundMap[marketItemId][msg.sender].isBond = false;
+    //     IERC1155(erc1155Address).burn(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower);
+    //     marketBasket[marketItemId].totalVotingPower = marketBasket[marketItemId].totalVotingPower - boundMap[marketItemId][msg.sender].votingPower;
+    //     emit NFTUnbond(
+    //         marketItemId,
+    //         marketBasket[marketItemId].tokenId,
+    //         amount,
+    //         block.timestamp,
+    //         boundMap[marketItemId][msg.sender].erc20Address,
+    //         false,
+    //         msg.sender
+    //     );
+    // }
 
     function claimReward(uint256 marketItemId) public{
         require(boundMap[marketItemId][msg.sender].isBond == true, "User is not bond");
-        require(marketBasket[marketItemId].owner != address(0));
+        require(marketBasket[marketItemId].owner != address(0), "The NFT has not been sold yet");
         uint256 reward = boundMap[marketItemId][msg.sender].votingPower * marketBasket[marketItemId].tokenValue;
         address payable rewarded = payable(msg.sender);
         IERC1155(erc1155Address).burn(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower);
         IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(address(this), msg.sender, boundMap[marketItemId][msg.sender].amount);
-        rewarded.transfer(reward);      
+        rewarded.transfer(reward);     
+        emit ClaimedReward(
+            reward,
+            msg.sender
+        ); 
     }
 
     function eighthRoot(uint256 _amount) public returns (bytes32 requestId){
@@ -274,6 +286,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
     /**
      * Receive the response in the form of uint256
      */ 
+     //recordChainlinkFulfillment(_requestId)
     function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId){
         //get infromations using requestId from the chainlink mapping struct
         address sender = chainlinkBasket[_requestId].sender;
