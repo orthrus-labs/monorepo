@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-contract Math {
+contract Utils {
 
     // calculates a^(1/n) to dp decimal places
     // maxIts bounds the number of iterations performed
@@ -35,7 +35,7 @@ contract Math {
         return (xNew + 5) / 10;
     }
 
-        function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
             return "0";
         }
