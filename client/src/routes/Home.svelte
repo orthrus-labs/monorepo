@@ -8,6 +8,7 @@
   import tyson2 from "../images/tyson2.png";
   import tyson3 from "../images/tyson3.png";
   import highland1 from "../images/highland1.jpg";
+  import  contractConfig  from "../../contract.config.js"
 
   async function getItemIds() {
     if (Web3) {
@@ -18,7 +19,7 @@
       console.log("networkId:", networkId);
       const contract = new web3.eth.Contract(
         MarketplaceContract.abi,
-        "0xef1e49862C584AD68EADbB7e66368Aa5fde79062"
+        contractConfig.marketplace.mumbai.contractAddress
       );
       const accounts = await web3.eth.getAccounts();
       console.log("accounts:", accounts);
@@ -27,6 +28,30 @@
   }
 
   $: promise = getItemIds();
+
+  async function getListedNFTs() {
+    if (Web3) {
+      // @ts-ignore
+      const web3 = new Web3(window.ethereum);
+      const networkId = await web3.eth.net.getId();
+      const contract = new web3.eth.Contract(
+        MarketplaceContract.abi,
+        contractConfig.marketplace.mumbai.contractAddress
+      );
+      const accounts = await web3.eth.getAccounts();
+      const receipt = await contract.methods
+        .listNFT(
+          _contractAddress,
+          _tokenId,
+          "metadata test",
+          web3.utils.toWei(_price, "ether")
+        )
+        .send({
+          from: accounts[0],
+        });
+      console.log(receipt);
+    }
+  }
 </script>
 
 {#await promise}

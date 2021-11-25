@@ -4,6 +4,11 @@
   import { Web3 } from "svelte-web3";
   import MarketplaceContract from "../../../artifacts/contracts/Marketplace.sol/Marketplace.json";
   import tyson2 from "../images/tyson2.png";
+  import contractConfig from "../../contract.config.js";
+  //import { price } from "../store.js";
+  //import Spinner from "svelte-spinner";
+import ListNFTForm from "../lib/ListNFTForm.svelte"
+ 
   let nfts = [];
 
   async function getNFTs() {
@@ -32,26 +37,8 @@
     }
   }
 
-  let _tokenId, _metadataUri, _price;
-  async function listNFT(_contractAddress, _tokenId) {
-    if (Web3) {
-      // @ts-ignore
-      const web3 = new Web3(window.ethereum);
-      const networkId = await web3.eth.net.getId();
-      const contract = new web3.eth.Contract(
-        MarketplaceContract.abi,
-        "0xef1e49862C584AD68EADbB7e66368Aa5fde79062"
-      );
-      const accounts = await web3.eth.getAccounts();
-      const receipt = await contract.methods
-        .listNFT(_contractAddress, 1, "test", web3.utils.toWei("1", "ether"))
-        .send({
-          from: accounts[0],
-        });
-      console.log(receipt);
-    }
-  }
-  $: promise2 = listNFT();
+  
+
 </script>
 
 <ProtectedRoute>
@@ -72,23 +59,7 @@
             {/if}
           </figure>
         {/await}
-        <div class="card-body">
-          <h2 class="card-title">
-            {item.attributes.name}
-            <div class="badge mx-2 badge-secondary">
-              {item.attributes.token_id}
-            </div>
-          </h2>
-          <div class="justify-end card-actions">
-            <button
-              on:click={listNFT(
-                item.attributes.token_address,
-                item.attributes.token_id
-              )}
-              class="btn btn-secondary">List NFT</button
-            >
-          </div>
-        </div>
+        <ListNFTForm name={item.attributes.name} tokenId={item.attributes.token_id} contractAddress={item.attributes.token_address}/>
       </div>
     {/each}
   </div>
