@@ -1,7 +1,7 @@
 const contractConfig = {
     marketplace: {
         mumbai: {
-            contractAddress: "0x5D0d88eFb62169597Db232B109B90450Fc067B45",
+            contractAddress: "0xA4F61CE526CcF4138453cCc7c575351bf723CdbA",
         }
     }
 }

@@ -1,12 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import ProtectedRoute from "../lib/ProtectedRoute.svelte";
-  import { Web3 } from "svelte-web3";
-  import MarketplaceContract from "../../../artifacts/contracts/Marketplace.sol/Marketplace.json";
   import tyson2 from "../images/tyson2.png";
-  import contractConfig from "../../contract.config.js";
-  //import { price } from "../store.js";
-  //import Spinner from "svelte-spinner";
 import ListNFTForm from "../lib/ListNFTForm.svelte"
  
   let nfts = [];
@@ -46,7 +41,7 @@ import ListNFTForm from "../lib/ListNFTForm.svelte"
     {#each nfts as item (item)}
       <div class="p-2 m-3 border-2 h-20px">
         {#await getImage(item.attributes.token_uri)}
-          {console.log("loading img")}
+          <h1>loading...</h1>
         {:then image}
           <figure>
             {#if image}
@@ -59,7 +54,7 @@ import ListNFTForm from "../lib/ListNFTForm.svelte"
             {/if}
           </figure>
         {/await}
-        <ListNFTForm name={item.attributes.name} tokenId={item.attributes.token_id} contractAddress={item.attributes.token_address}/>
+        <ListNFTForm name={item.attributes.name} tokenId={item.attributes.token_id} contractAddress={item.attributes.token_address} tokenUri={item.attributes.token_uri}/>
       </div>
     {/each}
   </div>

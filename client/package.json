@@ -24,6 +24,7 @@
 		"vite": "^2.6.0"
 	},
 	"dependencies": {
+		"cors-anywhere": "^0.4.4",
 		"crc-32": "^1.2.0",
 		"moralis": "^0.0.111"
 	}

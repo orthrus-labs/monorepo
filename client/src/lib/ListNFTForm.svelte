@@ -7,12 +7,13 @@
   export let tokenId;
   export let name;
   export let contractAddress;
+  export let tokenUri;
 
   let price;
   let isSubmitting = false;
   let isListed;
 
-  async function listNFT(_contractAddress, _tokenId, _price) {
+  async function listNFT(_contractAddress, _tokenId, _price, _metadata) {
     if (Web3) {
       // @ts-ignore
       const web3 = new Web3(window.ethereum);
@@ -26,7 +27,7 @@
         .listNFT(
           _contractAddress,
           _tokenId,
-          "metadata test",
+          _metadata,
           web3.utils.toWei(_price, "ether")
         )
         .send({
@@ -40,7 +41,7 @@
     isSubmitting = true;
     isListed = false;
     try {
-      await listNFT(contractAddress, tokenId, price);
+      await listNFT(contractAddress, tokenId, price, tokenUri);
       isListed = true;
     } catch (e) {
       console.log("error in listing:", e);

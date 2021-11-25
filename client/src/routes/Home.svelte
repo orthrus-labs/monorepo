@@ -8,7 +8,10 @@
   import tyson2 from "../images/tyson2.png";
   import tyson3 from "../images/tyson3.png";
   import highland1 from "../images/highland1.jpg";
-  import  contractConfig  from "../../contract.config.js"
+  import contractConfig from "../../contract.config.js";
+  import { onMount } from "svelte";
+
+  let nfts = [];
 
   async function getItemIds() {
     if (Web3) {
@@ -23,11 +26,14 @@
       );
       const accounts = await web3.eth.getAccounts();
       console.log("accounts:", accounts);
-      //return await contract.methods.itemIds().call()
     }
   }
 
   $: promise = getItemIds();
+
+  onMount(async () => {
+    nfts = await getListedNFTs();
+  });
 
   async function getListedNFTs() {
     if (Web3) {
@@ -39,25 +45,31 @@
         contractConfig.marketplace.mumbai.contractAddress
       );
       const accounts = await web3.eth.getAccounts();
-      const receipt = await contract.methods
-        .listNFT(
-          _contractAddress,
-          _tokenId,
-          "metadata test",
-          web3.utils.toWei(_price, "ether")
-        )
-        .send({
-          from: accounts[0],
-        });
-      console.log(receipt);
+      const receipt = await contract.methods.getUnsoldNFTsOnMarket().call({
+        from: accounts[0],
+      });
+      console.log("receipt:", receipt);
+      return receipt;
     }
   }
+
+  async function getImage(_tokenUri) {
+    try {
+      const response = await fetch(_tokenUri);
+      const myJson = await response.json(); //extract JSON from the http response
+      return myJson.image;
+    } catch (e) {
+      console.log("error in getting image:", e);
+    }
+  }
+
+  
 </script>
 
-{#await promise}
-  <h1>loading...</h1>
-{:then items}
-  <div class="grid grid-cols-3 mx-auto px-4 md:max-w-10xl">
+<div class="grid grid-cols-3 mx-auto px-4 md:max-w-10xl">
+  {#await promise}
+    <h1>loading...</h1>
+  {:then items}
     <NFTItem title={"The Mike Tyson NFT Collection"} price={1} img={tyson1} />
     <NFTItem title={"The Mike Tyson NFT Collection"} img={tyson2} />
     <NFTItem title={"The Mike Tyson NFT Collection"} img={tyson3} />
@@ -66,5 +78,12 @@
     <NFTItem title={"Cryptopunks"} img={cryptopunk1} />
     <NFTItem title={"The Mike Tyson NFT Collection"} img={tyson3} />
     <NFTItem title={"Highland"} img={highland1} />
-  </div>
-{/await}
+  {/await}
+  {#each nfts as item (item)}
+    {#await getImage(item[3])}
+      <h1>loading...</h1>
+    {:then img}
+      <NFTItem title={"Title"} price={item[6]} {img} marketItemId={item[0]} />
+    {/await}
+  {/each}
+</div>
