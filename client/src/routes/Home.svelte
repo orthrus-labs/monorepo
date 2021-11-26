@@ -68,20 +68,84 @@
   {#await promise}
     <h1>loading...</h1>
   {:then items}
-    <NFTItem title={"The Mike Tyson NFT Collection"} price={1} img={tyson1} />
-    <NFTItem title={"The Mike Tyson NFT Collection"} img={tyson2} />
-    <NFTItem title={"The Mike Tyson NFT Collection"} img={tyson3} />
-    <NFTItem title={"Highland"} img={highland1} />
-    <NFTItem title={"Edifice"} img={edifice1} />
-    <NFTItem title={"Cryptopunks"} img={cryptopunk1} />
-    <NFTItem title={"The Mike Tyson NFT Collection"} img={tyson3} />
-    <NFTItem title={"Highland"} img={highland1} />
+    <NFTItem
+      title={"The Mike Tyson NFT Collection"}
+      tokenId={10}
+      price={100000000000000000000}
+      img={tyson1}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"The Mike Tyson NFT Collection"}
+      tokenId={11}
+      price={100000000000000000000}
+      img={tyson2}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"The Mike Tyson NFT Collection"}
+      tokenId={12}
+      price={100000000000000000000}
+      img={tyson3}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"Highland"}
+      tokenId={7}
+      price={100000000000000000000}
+      img={highland1}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"Edifice"}
+      tokenId={7}
+      price={100000000000000000000}
+      img={edifice1}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"Cryptopunks"}
+      tokenId={5032}
+      price={100000000000000000000}
+      img={cryptopunk1}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"The Mike Tyson NFT Collection"}
+      tokenId={34}
+      price={100000000000000000000}
+      img={tyson3}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
+    <NFTItem
+      title={"Highland"}
+      tokenId={17}
+      price={100000000000000000000}
+      img={highland1}
+      seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
+      timestamp={1637882532}
+    />
   {/await}
   {#each nfts as item (item)}
     {#await getImage(item[3])}
       <h1>loading...</h1>
     {:then img}
-      <NFTItem title={"Title"} price={item[6]} {img} marketItemId={item[0]} tokenId={item[2]} seller={item[4]} timestamp={item[7]} />
+      <NFTItem
+        title={"Title"}
+        price={item[6]}
+        {img}
+        marketItemId={item[0]}
+        tokenId={item[2]}
+        seller={item[4]}
+        timestamp={item[7]}
+      />
     {/await}
   {/each}
 </div>
