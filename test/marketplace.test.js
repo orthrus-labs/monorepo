@@ -18,7 +18,7 @@ describe("Marketplace contract", async () => {
     await mockOracle.deployed();
     sampleERC721 = await SampleERC721.deploy("CryptoLizards", "CLIZ")
     await sampleERC721.deployed()
-    sampleERC721URI = await SampleERC721URI.deploy("Eskere", "ESK", "https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/")
+    sampleERC721URI = await SampleERC721URI.deploy("testNFT", "TEST", "https://gateway.pinata.cloud/ipfs/QmY4LfLC7iBT4zhGG3sVog1NQ5FquhDUsmKfZNZbqvFtXu/")
     await sampleERC721URI.deployed()
     sampleERC20 = await SampleERC20.deploy(0);
     await sampleERC20.deployed()
@@ -72,15 +72,15 @@ describe("Marketplace contract", async () => {
     it("Should transfer the NFT and emit NFTBought event", async () => {
       await sampleERC721.mintToken(owner.address, 2, {from: owner.address});
       const res = await sampleERC721.setApprovalForAll(marketplace.address, true, {from: owner.address})
-      await marketplace.listNFT(sampleERC721.address, 2, "test", 1000000, {from: owner.address});
-      const tx =await marketplace.connect(addr1).buyNFT(2,{from: addr1.address, value:1000000});
+      await marketplace.listNFT(sampleERC721.address, 2, "test", ethers.constants.WeiPerEther, {from: owner.address});
+      const tx =await marketplace.connect(addr2).buyNFT(2,{from: addr2.address, value:ethers.constants.WeiPerEther});
       let receipt = await tx.wait();
       expect(receipt.events).to.not.equal([])
       const res2 = receipt.events?.filter((x) => {
         return x.event == "NFTBought"
       });
       expect(res2[0].event).to.equal("NFTBought")
-      expect(addr1.address).to.equal(receipt.events[2].args[4])
+      expect(addr2.address).to.equal(receipt.events[2].args[4])
     })
     it("Should send the money to the seller and to the marketplace", async () => {
       await sampleERC721.mintToken(owner.address, 3, {from: owner.address});
@@ -141,17 +141,17 @@ describe("Marketplace contract", async () => {
        await sampleERC721.mintToken(owner.address, 4, {from: owner.address});
        await marketplace.listNFT(sampleERC721.address, 4, "test", ethers.constants.WeiPerEther);
        //owner bond 150 tokens after 60 seconds
-       let transaction = await marketplace.bondNFT(4, 150, sampleERC20.address, 4, {from: owner.address})
+       let transaction = await marketplace.bondNFT(4, 150, sampleERC20.address, 3, {from: owner.address})
        let tx_receipt = await transaction.wait()
        await mockOracle.fulfillOracleRequest(tx_receipt.events[5].args[7],"0x0000000000000000000000000000000000000000000000001726ebb1120b8730");
        expect(await sampleERC20.balanceOf(owner.address)).to.equal(0)
        //addr1 bond 10 tokens after 100 seconds
-       transaction = await marketplace.connect(addr1).bondNFT(4, 10, sampleERC20.address, 4, {from: addr1.address})
+       transaction = await marketplace.connect(addr1).bondNFT(4, 10, sampleERC20.address, 3, {from: addr1.address})
        tx_receipt = await transaction.wait()
        await mockOracle.fulfillOracleRequest(tx_receipt.events[5].args[7],"0x00000000000000000000000000000000000000000000000018adb7b3a2c2de30");
        expect(await sampleERC20.balanceOf(addr1.address)).to.equal(140)
        //addr2 bond 15 tokens after 100 seconds
-       transaction = await marketplace.connect(addr2).bondNFT(4, 15, sampleERC20.address, 4, {from: addr2.address})
+       transaction = await marketplace.connect(addr2).bondNFT(4, 15, sampleERC20.address, 2, {from: addr2.address})
        tx_receipt = await transaction.wait()
        await mockOracle.fulfillOracleRequest(tx_receipt.events[5].args[7],"0x00000000000000000000000000000000000000000000000018adb7b3a2c2de30");
        expect(await sampleERC20.balanceOf(addr2.address)).to.equal(135)
@@ -210,20 +210,32 @@ describe("Marketplace contract", async () => {
   })
   describe("GetNFTBond", async () => {
     it("Should return the bonders array", async () => {
-      const bonders = await marketplace.getNFTBond(4);
+      let bonders = await marketplace.getNFTBond(3);
+      expect(bonders.length).to.equal(0);
+      bonders = await marketplace.getNFTBond(4);
       expect(bonders.length).to.equal(3);
+      bonders = await marketplace.getNFTBond(5);
+      expect(bonders.length).to.equal(0);
     })
   })
   describe("FetchMyNFTs", async () => {
     it("Should return the NFTs bought by the sender", async () => {
-      const fetch = await marketplace.connect(addr1).fetchMyNFTs({from: addr1.address});
-      expect(fetch.length).to.equal(4);
+      let fetch = await marketplace.connect(addr1).fetchMyNFTs({from: addr1.address});
+      expect(fetch.length).to.equal(3);
+      fetch = await marketplace.connect(owner).fetchMyNFTs({from: owner.address});
+      expect(fetch.length).to.equal(0);
+      fetch = await marketplace.connect(addr2).fetchMyNFTs({from: addr2.address});
+      expect(fetch.length).to.equal(1);
     })
   })
   describe("GetMarketItem", () => {
     it("Should return the market item corresponding to the given Id", async () => {
-      const marketItem = await marketplace.getMarketItem(1);
+      let marketItem = await marketplace.getMarketItem(1);
       expect(marketItem.tokenId).to.equal(1)
+      marketItem = await marketplace.getMarketItem(2);
+      expect(marketItem.tokenId).to.equal(2)
+      marketItem = await marketplace.getMarketItem(3);
+      expect(marketItem.tokenId).to.equal(3)
     })
   })
 })
