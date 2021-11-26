@@ -11,6 +11,7 @@ module.exports = async ({
         log('we are on local chain! Deploying Mocks...')
         const LinkToken = await deploy('LinkToken', {from: deployer, log: true})
         const VRFCoordinatorMock = await deploy('VRFCoordinatorMock', {from: deployer, log: true, args: [LinkToken.address]})
+        const MockOracle = await deploy('MockOracle', {from: deployer, log: true, args: [LinkToken.address]})
         log('Mocks deployed')
     }
 }
