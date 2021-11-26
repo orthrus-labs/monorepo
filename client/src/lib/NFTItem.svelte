@@ -81,9 +81,9 @@
     <h2 class="card-title">{title}</h2>
     <div class="justify-start card-actions">
       <p>ID: {tokenId}</p>
+    </div>
+    <div class="justify-start card-actions">
       <p>Seller: {seller}</p>
-      <p>Timestamp: {timestamp}</p>
-      <!-- TODO display token contract, seller, timestamp, voting power-->
     </div>
     <div class="justify-start card-actions">
       {#if price}

@@ -13,24 +13,6 @@
 
   let nfts = [];
 
-  async function getItemIds() {
-    if (Web3) {
-      // @ts-ignore
-      const web3 = new Web3(window.ethereum);
-      console.log("web3");
-      const networkId = await web3.eth.net.getId();
-      console.log("networkId:", networkId);
-      const contract = new web3.eth.Contract(
-        MarketplaceContract.abi,
-        contractConfig.marketplace.mumbai.contractAddress
-      );
-      const accounts = await web3.eth.getAccounts();
-      console.log("accounts:", accounts);
-    }
-  }
-
-  $: promise = getItemIds();
-
   onMount(async () => {
     nfts = await getListedNFTs();
   });
@@ -48,7 +30,6 @@
       const receipt = await contract.methods.getUnsoldNFTsOnMarket().call({
         from: accounts[0],
       });
-      console.log("receipt:", receipt);
       return receipt;
     }
   }
@@ -65,9 +46,6 @@
 </script>
 
 <div class="grid grid-cols-3 mx-auto px-4 md:max-w-10xl">
-  {#await promise}
-    <h1>loading...</h1>
-  {:then items}
     <NFTItem
       title={"The Mike Tyson NFT Collection"}
       tokenId={10}
@@ -132,13 +110,12 @@
       seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
       timestamp={1637882532}
     />
-  {/await}
   {#each nfts as item (item)}
     {#await getImage(item[3])}
       <h1>loading...</h1>
     {:then img}
       <NFTItem
-        title={"Title"}
+        title={"Crazy Eyes"}
         price={item[6]}
         {img}
         marketItemId={item[0]}
