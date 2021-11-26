@@ -62,8 +62,6 @@
       console.log("error in getting image:", e);
     }
   }
-
-  
 </script>
 
 <div class="grid grid-cols-3 mx-auto px-4 md:max-w-10xl">
@@ -83,7 +81,7 @@
     {#await getImage(item[3])}
       <h1>loading...</h1>
     {:then img}
-      <NFTItem title={"Title"} price={item[6]} {img} marketItemId={item[0]} />
+      <NFTItem title={"Title"} price={item[6]} {img} marketItemId={item[0]} tokenId={item[2]} seller={item[4]} timestamp={item[7]} />
     {/await}
   {/each}
 </div>
