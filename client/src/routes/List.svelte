@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import ProtectedRoute from "../lib/ProtectedRoute.svelte";
   import tyson2 from "../images/tyson2.png";
-import ListNFTForm from "../lib/ListNFTForm.svelte"
- 
+  import ListNFTForm from "../lib/ListNFTForm.svelte";
+
   let nfts = [];
 
   async function getNFTs() {
@@ -31,9 +31,6 @@ import ListNFTForm from "../lib/ListNFTForm.svelte"
       console.log("error in getting image:", e);
     }
   }
-
-  
-
 </script>
 
 <ProtectedRoute>
@@ -54,7 +51,12 @@ import ListNFTForm from "../lib/ListNFTForm.svelte"
             {/if}
           </figure>
         {/await}
-        <ListNFTForm name={item.attributes.name} tokenId={item.attributes.token_id} contractAddress={item.attributes.token_address} tokenUri={item.attributes.token_uri}/>
+        <ListNFTForm
+          name={item.attributes.name}
+          tokenId={item.attributes.token_id}
+          contractAddress={item.attributes.token_address}
+          tokenUri={item.attributes.token_uri}
+        />
       </div>
     {/each}
   </div>
