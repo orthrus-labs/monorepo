@@ -24,7 +24,6 @@
     );
     const accounts = await web3.eth.getAccounts();
     if (marketItemId == undefined) {
-        console.log("undefined")
       return emojis;
     }
     const res = await contract.methods.getNFTBond(marketItemId).call({
@@ -32,7 +31,7 @@
     });
     for (let i = 0; i < res.length; i++) {
       if (res[i].iconId) {
-        emojis[res[i].iconId - 1] = emojis[res[i].iconId - 1] + 1;
+        emojis[res[i].iconId] = emojis[res[i].iconId] + 1;
       }
     }
     return emojis;
