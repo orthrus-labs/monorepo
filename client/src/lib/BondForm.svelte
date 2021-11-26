@@ -16,9 +16,6 @@
   }
 
   async function bondNFT(_marketItemId, _amount, _iconId) {
-    console.log("marketitem id:", _marketItemId);
-    console.log("amount:", _amount);
-    console.log("icon:", _iconId);
     if (Web3) {
       // @ts-ignore
       const web3 = new Web3(window.ethereum);
@@ -29,13 +26,11 @@
       );
       const accounts = await web3.eth.getAccounts();
       const erc20address = contractConfig.erc20address.mumbai.contractAddress;
-      console.log("erc20 address:", erc20address);
       const receipt = await contract.methods
         .bondNFT(_marketItemId, _amount, erc20address, _iconId)
         .send({
           from: accounts[0],
         });
-      console.log("bond receipt:", receipt);
     }
   }
 
