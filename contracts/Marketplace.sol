@@ -28,7 +28,6 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
     uint256 private curationFee;
     address public erc1155Address;
-    string public amountStr;
     address private oracle;
     bytes32 private jobId;
     uint256 private fee;
@@ -126,7 +125,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         erc1155Address = _erc1155Address;
         setChainlinkToken(_linkToken);
         oracle = _oracle;
-        jobId = "2bb15c3f9cfc4336b95012872ff05092";
+        jobId = 'bbf0badad29d49dc887504bacfbb905b';
         fee = 0.01 * 10 ** 18; // (Varies by network and job)
         str1 = "https://api.mathjs.org/v4/?expr=";
         str2 = "^(1/8)";
@@ -160,8 +159,6 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         marketBasket[marketItemId].timestampNFT = block.timestamp;
         marketBasket[marketItemId].totalVotingPower = 1;
         marketBasket[marketItemId].numberOfBonders = 0;
-        // Approve the marketplace contract to transfer the nft.
-        //IERC721(_contractAddress).setApprovalForAll(address(this), true);
         emit NFTListed(
             marketItemId,
             _contractAddress,
@@ -208,6 +205,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         require(IERC20(erc20Address).balanceOf(msg.sender) >= amount, "Balance must be at least equal to the amount");
         require(boundMap[marketItemId][msg.sender].isBond == false, "User is already bonded");
         require(marketBasket[marketItemId].owner == address(0), "The NFT has been already bought");
+        require(iconId < 4, "IconId must be less than 4");
         IERC20(erc20Address).transferFrom(msg.sender, address(this), amount);
         boundMap[marketItemId][msg.sender].amount = amount;
         boundMap[marketItemId][msg.sender].user = msg.sender;
@@ -220,7 +218,6 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         marketBasket[marketItemId].numberOfBonders = marketBasket[marketItemId].numberOfBonders + 1;
         marketBasket[marketItemId].Bonders.push(msg.sender);
         bytes32 requestId = eighthRoot(timeStamp);
-        console.log("req id in contract:", iconId);
         chainlinkBasket[requestId].sender = msg.sender;
         chainlinkBasket[requestId].marketItemId = marketItemId;
         emit NFTBond(
@@ -272,7 +269,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
     }
 
     function eighthRoot(uint256 _amount) public returns (bytes32 requestId){
-        amountStr = uint2str(_amount);   
+        string memory amountStr = uint2str(_amount);   
         Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);   
         // Set the URL to perform the GET request on
         request.add("get", string(abi.encodePacked(str1, amountStr, str2)));                
@@ -286,12 +283,11 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
     /**
      * Receive the response in the form of uint256
      */ 
-     //recordChainlinkFulfillment(_requestId)
     function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId){
         //get infromations using requestId from the chainlink mapping struct
         address sender = chainlinkBasket[_requestId].sender;
         uint256 marketItemIdGlobal = chainlinkBasket[_requestId].marketItemId;
-        uint256 votingPower = nthRoot(boundMap[marketItemIdGlobal][sender].amount, 2, 18, 10) / (_volume / 100);
+        uint256 votingPower = nthRoot(boundMap[marketItemIdGlobal][sender].amount, 2, 18, 20) / (_volume / 100);
         boundMap[marketItemIdGlobal][sender].votingPower = votingPower;
         IERC1155(erc1155Address).mint(sender, marketItemIdGlobal, boundMap[marketItemIdGlobal][sender].votingPower, "0x00"); 
         marketBasket[marketItemIdGlobal].totalVotingPower = marketBasket[marketItemIdGlobal].totalVotingPower + boundMap[marketItemIdGlobal][sender].votingPower;
@@ -376,7 +372,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
     function getNFTBond(uint256 _marketItemId) public view returns(bondedNFT[] memory) {
         uint256 itemCount = marketBasket[_marketItemId].numberOfBonders;
         bondedNFT[] memory items = new bondedNFT[](itemCount);
-        for (uint256 i = 1; i < itemCount; i++) {
+        for (uint256 i = 0; i < itemCount; i++) {
             if(boundMap[_marketItemId][marketBasket[_marketItemId].Bonders[i]].isBond != false){
                 bondedNFT storage currentItem = boundMap[_marketItemId][marketBasket[_marketItemId].Bonders[i]];
                 items[i] = currentItem;
