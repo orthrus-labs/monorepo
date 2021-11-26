@@ -21,7 +21,7 @@ contract NFT is ERC721Enumerable, Ownable {
     string memory _initBaseURI
   ) ERC721(_name, _symbol) {
     setBaseURI(_initBaseURI);
-    mint(msg.sender, 5);
+    mint(msg.sender, 1);
   }
 
   // internal
