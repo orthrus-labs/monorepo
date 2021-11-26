@@ -96,7 +96,8 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         address _erc20Address,
         bool _isBond,
         address _user,
-        bytes32 _requestId
+        bytes32 _requestId,
+        uint256 _iconId
     );
 
     event NFTUnbond(
@@ -175,7 +176,8 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
     }
 
     function buyNFT(uint256 marketItemId) external payable {
-        uint256 _price = marketBasket[marketItemId].price;
+        require(msg.sender != marketBasket[marketItemId].seller);
+        uint256  _price = marketBasket[marketItemId].price;
         uint256 _tokenId = marketBasket[marketItemId].tokenId;
         address payable _seller = marketBasket[marketItemId].seller;
         address _contractAddress = marketBasket[marketItemId].contractAddress;
@@ -183,7 +185,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         marketBasket[marketItemId].owner = payable(msg.sender);
         IERC721(_contractAddress).transferFrom(_seller, msg.sender, _tokenId);
         _seller.transfer(_price - (_price / 100));
-        marketBasket[marketItemId].tokenValue = (_price / 100) / (marketBasket[marketItemId].totalVotingPower);
+        //marketBasket[marketItemId].tokenValue = (_price / 100) / (marketBasket[marketItemId].totalVotingPower);
         itemSold.increment();
         emit NFTBought(
             marketItemId,
@@ -228,7 +230,8 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
             erc20Address,
             boundMap[marketItemId][msg.sender].isBond,
             msg.sender,
-            requestId
+            requestId,
+            iconId
         );
     }
 
@@ -262,6 +265,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         IERC1155(erc1155Address).burn(msg.sender, marketItemId, boundMap[marketItemId][msg.sender].votingPower);
         IERC20(boundMap[marketItemId][msg.sender].erc20Address).transferFrom(address(this), msg.sender, boundMap[marketItemId][msg.sender].amount);
         rewarded.transfer(reward);     
+        boundMap[marketItemId][msg.sender].isBond == false;
         emit ClaimedReward(
             reward,
             msg.sender
@@ -291,6 +295,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
         boundMap[marketItemIdGlobal][sender].votingPower = votingPower;
         IERC1155(erc1155Address).mint(sender, marketItemIdGlobal, boundMap[marketItemIdGlobal][sender].votingPower, "0x00"); 
         marketBasket[marketItemIdGlobal].totalVotingPower = marketBasket[marketItemIdGlobal].totalVotingPower + boundMap[marketItemIdGlobal][sender].votingPower;
+        marketBasket[marketItemIdGlobal].tokenValue = (marketBasket[marketItemIdGlobal].price / 100) / (marketBasket[marketItemIdGlobal].totalVotingPower);
         emit VotingPower(
             votingPower
         );
@@ -379,5 +384,24 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
             }
         }
         return items;
+    }
+
+    function getMyUnclaimedNFTs() public view returns(uint256[] memory) {
+        uint256 totalItemCount = itemIds.current(); 
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (marketBasket[i + 1].owner != address(0) && boundMap[i + 1][msg.sender].isBond == true) {
+                itemCount++;
+            }
+        }
+        uint256[] memory items = new uint256[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (marketBasket[i + 1].owner != address(0) && boundMap[i + 1][msg.sender].isBond == true) {
+                items[currentIndex] = marketBasket[i + 1].id;
+                currentIndex++;
+            }
+        }
+       return items;
     }
 }
