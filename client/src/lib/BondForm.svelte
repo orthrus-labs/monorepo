@@ -56,7 +56,7 @@
     <form on:submit|preventDefault={handleSubmit}>
       {#if isBonded}
         <div class="justify-center text-center mb-lg text-3xl">
-          Value Staked Successfully 🤑
+          Reacted Successfully 🤑
         </div>
       {:else if isSubmitting}
         <Spinner size="60" />
