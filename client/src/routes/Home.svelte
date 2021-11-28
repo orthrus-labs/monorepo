@@ -3,6 +3,8 @@
   import MarketplaceContract from "../../../artifacts/contracts/Marketplace.sol/Marketplace.json";
   import NFTItem from "../lib/NFTItem.svelte";
   import tyson1 from "../images/tyson1.png";
+  import beeple from "../images/beeple.png";
+  import damien from "../images/damien.png";
   import cryptopunk1 from "../images/cryptopunk1.png";
   import edifice1 from "../images/edifice1.png";
   import tyson2 from "../images/tyson2.png";
@@ -95,18 +97,18 @@
       timestamp={1637882532}
     />
     <NFTItem
-      title={"The Mike Tyson NFT Collection"}
+      title={"Damien Hirst - The Currency"}
       tokenId={34}
       price={100000000000000000000}
-      img={tyson3}
+      img={damien}
       seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
       timestamp={1637882532}
     />
     <NFTItem
-      title={"Highland"}
+      title={"Beeple"}
       tokenId={17}
       price={100000000000000000000}
-      img={highland1}
+      img={beeple}
       seller={"0x810DD92Ad0c199a7B364Fb324E97dac5e5014C5D"}
       timestamp={1637882532}
     />
