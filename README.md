@@ -1,10 +1,10 @@
 # 🖼 dExhibition
 
-# :wrench: :construction: Testing Provable's Diesel Prices Example.
-
 &nbsp;
 
 This repo is to demonstrate how you would set up the dExhibition environment using Hardhat & Svelte. Head on over to the `./test` folder to examine the javascript files that thoroughly test the smart-contract, which latter you will find in `./contracts`.
+
+&nbsp;
 
 ## :page_with_curl:  _Instructions_
 
@@ -34,7 +34,9 @@ __`❍ npm run dev`__
 
 The project takes inspiration from the current NFT trends, the desire for a decentralized social network, the mechanics behind marketplaces, and the game theory of derivatives; we are so excited to present dExhibition, a decentralized NFT social network for curators. 
 
-## What it does
+&nbsp;
+ 
+## 🛸 _What it does_
 
 The platform dExhibition allows NFTs to be not just static elements of a marketplace but brings them to life empowering curators to be rewarded for their curation job on the platform by getting a cut on the curated NFT sale.
 
@@ -42,7 +44,9 @@ From a **Defi perspective**, dExhibition can also be seen as an NFT derivative e
 
 Since we are not looking to create another whale platform, the quadratic formula behind the reward calculation prevents users with big capital to outclass normal users.
 
-## How we built it
+&nbsp;
+
+## 🛸 _How we built it_
 
 For the on-chain part we are relying on our Marketplace.sol Solidity smart contract, which it is in charge of:
 
@@ -64,20 +68,28 @@ For the front-end, we have used Svelte + TailwindCSS + Daisy UI.
 
 We are using **Moralis API** to retrieve users & NFTs information in a smooth way.
 
-## Challenges we ran into
+&nbsp;
+
+## 🔧 🚧 _Challenges we ran into_
 
 Coming out with a decent formula for the voting power calculation was challenging. Chainlink helped us a lot here since the on-chain solution we came out with was very expensive in terms of gas. Since we are planning a launch on Ethereum other than Polygon, this allows saving a lot in fees.
 
-## Accomplishments that we're proud of
+&nbsp;
+
+## 💪 _Accomplishments that we're proud of_
 
 Building a working service with on-chain contracts and nice front-end UI in one month is something we are extremely proud of. This is also the first time we were working together as a team. 
 
-## What we learned
+&nbsp;
+
+## 👩‍🏫 _What we learned_
 
 * Complete Chainlink flow
 * Moralis is so easy to integrate and makes the whole process of retrieving information about users and NFTs so smooth.
 * Derivatives mechanics
 
-## What's next for DExhibition
+&nbsp;
+
+## 🚀 _What's next for DExhibition_
 
 * Launch on Polygon Mainnet!
