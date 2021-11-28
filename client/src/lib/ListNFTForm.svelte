@@ -61,7 +61,7 @@
     <div class="justify-start card-actions">
       <div class="form-control">
         <label class="label">
-          <span class="label-text">Price in ETH</span>
+          <span class="label-text">Price</span>
         </label>
         <label class="input-group input-group-md">
           <input
@@ -70,7 +70,7 @@
             placeholder="0.1"
             bind:value={price}
           />
-          <span>Ξ</span>
+          <span>MATIC</span>
         </label>
       </div>
     </div>

@@ -78,22 +78,19 @@
       {/if}
     {/await}
 
-    <h2 class="card-title">{title}</h2>
-    <div class="justify-start card-actions">
-      <p>ID: {tokenId}</p>
-    </div>
+    <h2 class="card-title">{title} <div class="badge badge-lg">{tokenId}</div></h2>  
     <div class="justify-start card-actions">
       <p>Seller: {seller}</p>
     </div>
     <div class="justify-start card-actions">
-      {#if price}
-        <p>Price: {price / Math.pow(10, 18)} MATIC</p>
-      {:else}
-        <p>1 ETH</p>
-      {/if}
+      <p>Listed {getRandomInt(5)} days ago</p>
     </div>
     <div class="justify-start card-actions">
-      <p>Listed 3 days ago</p>
+      {#if price}
+        <p class="font-bold	">Price: {price / Math.pow(10, 18)} MATIC</p>
+      {:else}
+        <p>Price: 1000 MATIC</p>
+      {/if}
     </div>
     <div class="card-actions justify-end">
       <div>
