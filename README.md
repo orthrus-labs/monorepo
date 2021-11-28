@@ -4,6 +4,20 @@
 
 This repo is to demonstrate how you would set up the dExhibition environment using Hardhat & Svelte. Head on over to the `./test` folder to examine the javascript files that thoroughly test the smart-contract, which latter you will find in `./contracts`.
 
+### Check the NFTs available for curation:
+![Screenshot 2021-11-28 at 18 59 11](https://user-images.githubusercontent.com/10484858/143782448-7a87d5ee-97fe-47ce-b051-df9c1a6e50b4.png)
+
+### React to an NFT and earn a reward if the NFT is sold.
+![Screenshot 2021-11-28 at 18 57 46](https://user-images.githubusercontent.com/10484858/143782461-a99a9df6-50fb-474b-ac1a-0543dc6c6a84.png)
+
+### Claim your curation reward!
+![Screenshot 2021-11-28 at 18 58 24](https://user-images.githubusercontent.com/10484858/143782466-4a00d9b7-06bf-40f6-b3de-0532ffcbb419.png)
+
+### You can also list your NFT for curation :)
+![Screenshot 2021-11-28 at 18 58 10](https://user-images.githubusercontent.com/10484858/143782468-23ea24f3-78b0-40b1-b9ca-eece853d0248.png)
+
+
+
 &nbsp;
 
 ## :page_with_curl:  _Instructions_
