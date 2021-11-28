@@ -17,7 +17,6 @@
     if (Web3) {
       // @ts-ignore
       const web3 = new Web3(window.ethereum);
-      const networkId = await web3.eth.net.getId();
       const contract = new web3.eth.Contract(
         MarketplaceContract.abi,
         contractConfig.marketplace.mumbai.contractAddress
@@ -44,7 +43,7 @@
       await listNFT(contractAddress, tokenId, price, tokenUri);
       isListed = true;
     } catch (e) {
-      console.log("error in listing:", e);
+      console.log("Error in listing NFT:", e);
     }
     isSubmitting = false;
   }
@@ -67,7 +66,7 @@
           <input
             class="input input-bordered input-md"
             type="text"
-            placeholder="0.1"
+            placeholder="0.01"
             bind:value={price}
           />
           <span>MATIC</span>
@@ -76,15 +75,13 @@
     </div>
     <div class="justify-end card-actions">
       {#if isListed}
-      <div class="justify-center text-center mb-lg text-3xl">
-        Listed 🤑
-    </div>
+        <div class="justify-center text-center mb-lg text-3xl">Listed 🤑</div>
       {:else if isSubmitting}
         <Spinner size="60" />
       {:else}
-        <button class="btn btn-secondary" disabled={isSubmitting}
-          >List NFT</button
-        >
+        <button class="btn btn-secondary" disabled={isSubmitting}>
+          List NFT
+        </button>
       {/if}
     </div>
   </div>

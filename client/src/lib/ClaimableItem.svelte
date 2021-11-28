@@ -65,7 +65,7 @@
       >
         <input type="checkbox" />
         <div class="collapse-title text-xl font-medium">
-          Bonders & Curators
+          Other Curators
         </div>
         <div class="collapse-content">
           <BondersTable bonders={item.otherBonders} />

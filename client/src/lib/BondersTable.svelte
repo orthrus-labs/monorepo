@@ -1,9 +1,5 @@
 <script>
   export let bonders;
-
-  function getBonders() {
-    for (let i = 0; i < bonders.length; i++) {}
-  }
 </script>
 
 <div class="overflow-x-auto">
@@ -24,6 +20,7 @@
               <div class="avatar online">
                 <div class="w-12 h-12 rounded-full">
                   <img
+                    alt="bonder"
                     src="https://uploads-ssl.webflow.com/5ead65b4cd1146b85071bfdf/608ff2a12bc39c3ff457ae36_Bored%20Ape%208622-%20Image%202.png"
                   />
                 </div>

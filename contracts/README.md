@@ -3,7 +3,7 @@
 The Nifty Lair contracts would allow anyone to:
 
 * List an owned NFT for curation
-* Bond to curate the NFT
+* React with emojis to curate the NFT
 * Claim reward when the NFT is sold
 
 This led to the following design: 

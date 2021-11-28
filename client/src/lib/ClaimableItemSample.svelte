@@ -34,8 +34,7 @@
         <div class="stat">
           <div class="stat-title">Total Emojis</div>
           <div class="stat-value text-primary">
-            {getRandomInt(10)} 😍 {getRandomInt(6)} 🤣 {getRandomInt(4)} 🤬
-            {getRandomInt(2)} 🤮
+            3 😍 1 🤣 1 🤬 0 🤮
           </div>
         </div>
         <div class="stat">
@@ -65,7 +64,7 @@
       >
         <input type="checkbox" />
         <div class="collapse-title text-xl font-medium">
-          Bonders & Curators
+          Other Curators
         </div>
         <div class="collapse-content">
           <SampleTable />

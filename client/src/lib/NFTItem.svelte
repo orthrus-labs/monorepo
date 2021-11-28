@@ -5,7 +5,6 @@
   export let marketItemId;
   export let tokenId;
   export let seller;
-  export let timestamp;
 
   import { Web3 } from "svelte-web3";
   import MarketplaceContract from "../../../artifacts/contracts/Marketplace.sol/Marketplace.json";
@@ -17,7 +16,6 @@
   async function getEmojis() {
     let emojis = [0, 0, 0, 0];
     const web3 = new Web3(window.ethereum);
-    const networkId = await web3.eth.net.getId();
     const contract = new web3.eth.Contract(
       MarketplaceContract.abi,
       contractConfig.marketplace.mumbai.contractAddress
@@ -63,7 +61,7 @@
   </div>
   <div class="card-body">
     {#await promise}
-      <h1>loading emojis..</h1>
+      <h1>Loading emojis...</h1>
     {:then emojis}
       {#if areNoEmojis(emojis)}
         <div class="justify-center text-center mb-lg text-3xl">
@@ -78,7 +76,10 @@
       {/if}
     {/await}
 
-    <h2 class="card-title">{title} <div class="badge badge-lg">{tokenId}</div></h2>  
+    <h2 class="card-title">
+      {title}
+      <div class="badge badge-lg">{tokenId}</div>
+    </h2>
     <div class="justify-start card-actions">
       <p>Seller: {seller}</p>
     </div>
@@ -86,11 +87,13 @@
       <p>Listed {getRandomInt(5)} days ago</p>
     </div>
     <div class="justify-start card-actions">
-      {#if price}
-        <p class="font-bold	">Price: {price / Math.pow(10, 18)} MATIC</p>
-      {:else}
-        <p>Price: 1000 MATIC</p>
-      {/if}
+      <p class="font-bold">
+        {#if price}
+          Price: {price / Math.pow(10, 18)} MATIC
+        {:else}
+          Price: 1000 MATIC
+        {/if}
+      </p>
     </div>
     <div class="card-actions justify-end">
       <div>

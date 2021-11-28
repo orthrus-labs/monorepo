@@ -19,7 +19,6 @@
     if (Web3) {
       // @ts-ignore
       const web3 = new Web3(window.ethereum);
-      const networkId = await web3.eth.net.getId();
       const contract = new web3.eth.Contract(
         MarketplaceContract.abi,
         contractConfig.marketplace.mumbai.contractAddress
@@ -27,7 +26,12 @@
       const accounts = await web3.eth.getAccounts();
       const erc20address = contractConfig.erc20address.mumbai.contractAddress;
       const receipt = await contract.methods
-        .bondNFT(_marketItemId, _amount, erc20address, _iconId)
+        .bondNFT(
+          _marketItemId,
+          web3.utils.toWei(_amount, "ether"),
+          erc20address,
+          _iconId
+        )
         .send({
           from: accounts[0],
         });
@@ -52,7 +56,7 @@
     <form on:submit|preventDefault={handleSubmit}>
       {#if isBonded}
         <div class="justify-center text-center mb-lg text-3xl">
-          Bond Successfull 🤑
+          Value Staked Successfully 🤑
         </div>
       {:else if isSubmitting}
         <Spinner size="60" />
@@ -137,7 +141,7 @@
                 <Spinner size="60" />
               {:else}
                 <button class="btn btn-secondary" disabled={isSubmitting}
-                  >Bond</button
+                  >React</button
                 >
                 <label for={marketItemId} class="btn">Cancel</label>
               {/if}
