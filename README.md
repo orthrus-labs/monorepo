@@ -28,6 +28,10 @@ __`❍ cd client && npm install`__
 
 __`❍ npm run dev`__
 
+**6)** Check dExhibition!
+
+__`❍ http://localhost:5000`__
+
 &nbsp;
 
 ## 💡 _Inspiration_
@@ -36,7 +40,7 @@ The project takes inspiration from the current NFT trends, the desire for a dece
 
 &nbsp;
  
-## 🛸 _What it does_
+## 👾 _What it does_
 
 The platform dExhibition allows NFTs to be not just static elements of a marketplace but brings them to life empowering curators to be rewarded for their curation job on the platform by getting a cut on the curated NFT sale.
 
@@ -46,9 +50,9 @@ Since we are not looking to create another whale platform, the quadratic formula
 
 &nbsp;
 
-## 🛸 _How we built it_
+## 🔮 _How we built it_
 
-For the on-chain part we are relying on our Marketplace.sol Solidity smart contract, which it is in charge of:
+For the on-chain part we are relying on our `Marketplace.sol` Solidity smart contract, which it is in charge of:
 
 * Allowing users to **buy** an NFT
 * Allowing curators to **react by bonding** value - the position of the bonded value of the NFT is represented in the form of ERC1155 minted to the curator 
@@ -56,9 +60,11 @@ For the on-chain part we are relying on our Marketplace.sol Solidity smart contr
 
 The contract is live on Mumbai **Polygon testnet** at: 
 
+```
   * Marketplace: `0x18af824E41b37dE3a92a9599854ED407A76ff514`
   * Erc20address (our custom version of DAI):  `0xE60e6676eCB09bC095D36AB83B46C4695F79372d`
   * Erc1155address (token representing a reaction on an NFT + value in $DAI): `0x4459c282299C439D6915e0a37Fed30e045c431bC`
+```
 
 We have used **Chainlink External Adapter** to use the API Endpoint as a Wolfram to calculate what we identify as the Curator Voting Power, which is the amount of the reward the curator is entitled to.
 
