@@ -7,14 +7,14 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
-import "./interface/IERC721.sol";
-import "./externals/Counters.sol";
-import "./externals/SafeMath.sol";
-import "./interface/IERC20.sol";
-import "./externals/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interface/IERC1155.sol";
-import "./internals/Utils.sol";
-import "./externals/Chainlink/ChainlinkClient.sol";
+import "./interface/Utils.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 /// @title The Nifty Lair Marketplace
 /// @notice Manage NFT Marketplace
@@ -158,7 +158,7 @@ import "./externals/Chainlink/ChainlinkClient.sol";
         marketBasket[marketItemId].price = _price;
         marketBasket[marketItemId].metadataUri = _metadataUri;
         marketBasket[marketItemId].timestampNFT = block.timestamp;
-        marketBasket[marketItemId].totalVotingPower = 0;
+        marketBasket[marketItemId].totalVotingPower = 1;
         marketBasket[marketItemId].numberOfBonders = 0;
         emit NFTListed(
             marketItemId,
