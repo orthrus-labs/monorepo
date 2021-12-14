@@ -1,0 +1,47 @@
+name: echidna
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  echidna:
+    name: Echidna
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: Set up node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 16
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2.2.1
+        with:
+          python-version: 3.8
+
+      - name: Install node dependencies
+        run: npm install
+
+      - name: Run marketplace test
+        run:  npm run test
+
+      # - name: Install pip3
+      #   run: |
+      #     python -m pip install --upgrade pip
+      # - name: Install slither
+      #   run: |
+      #     pip3 install slither-analyzer
+      # - name: Install echidna
+      #   run: |
+      #     sudo wget -O /tmp/echidna-test.tar.gz https://github.com/crytic/echidna/releases/download/v1.7.0/echidna-test-1.7.0-Ubuntu-18.04.zip
+      #     sudo tar -xf /tmp/echidna-test.tar.gz -C /usr/bin
+      #     sudo chmod +x /usr/bin/echidna-test
+      # - name: Run Echidna_Test
+      #   run: echidna-test . --contract Test
