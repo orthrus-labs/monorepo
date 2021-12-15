@@ -23,6 +23,8 @@ jobs:
         run: npm install
 
       - name: Run marketplace test
+        env:
+          GITHUB_MNEMONIC: ${{ secrets.MNEMONIC }}
         run:  npm run test
 
       - name: Install pip3
