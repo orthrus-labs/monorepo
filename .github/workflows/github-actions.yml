@@ -26,3 +26,18 @@ jobs:
 
       - name: Run marketplace test
         run:  npm run test
+
+      - name: Install pip3
+        run: |
+          python -m pip install --upgrade pip
+          
+      - name: Install slither
+        run: |
+          pip3 install slither-analyzer
+
+      - name: Run slither
+        run: slither .
+
+
+
+        
